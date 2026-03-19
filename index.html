@@ -870,7 +870,7 @@ async function loadSkillDB() {
   ];
   for (const url of URLS) {
     try {
-      const r = await fetch(url, {signal: AbortSignal.timeout(12000)});
+      const r = await fetchTimeout(url, {}, 12000);
       if (r.ok) {
         const text = await r.text();
         const parsed = parseSkillPage(text);
@@ -1226,74 +1226,38 @@ function buildSkillsSection(t){
 }
 
 function printSheet() {
-  // iOS Safari doesn't support window.print() — open print-ready page in new tab
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (isIOS) {
-    // Build a standalone print page and open it — user can then Share → Print
-    const output = document.getElementById('output').innerHTML;
-    const printWin = window.open('', '_blank');
-    printWin.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      <title>BB Game Sheet</title>
-      <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
-      <style>
-        body{margin:0;padding:0;background:#fff;font-family:'Rajdhani',sans-serif}
-        .page-label{display:none}
-        ${getSheetCSS()}
-      </style>
-
-```
-  </head><body>${output}
-  <p style="text-align:center;font-size:10pt;color:#999;margin-top:20px;font-family:sans-serif">
-    Tap the Share button &#x2197; then select <strong>Print</strong>
-  </p>
-  </body></html>`);
-printWin.document.close();
-```
-
-} else {
-window.print();
-}
+    // Show instructions for iOS — Share button → Print
+    alert('To print on iOS:\n\n1. Tap the Share button (box with arrow) in Safari\n2. Select \'Print\'\n\nOr take a screenshot of the sheet.');
+  }
+  // window.print() works on desktop and Android; on iOS it may also work in newer Safari
+  try { window.print(); } catch(e) {}
 }
 
-function getSheetCSS() {
-// Extract just the sheet/roster CSS from the existing stylesheet
-try {
-for (const sheet of document.styleSheets) {
-let css = ‘’;
-try {
-for (const rule of sheet.cssRules) css += rule.cssText + ‘\n’;
-} catch(e) {}
-if (css.includes(’.sheet’) && css.includes(’.roster’)) return css;
-}
-} catch(e) {}
-return ‘’;
-}
-
-function esc(s){if(!s)return’’;return String(s).replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’);}
-function setStatus(msg){document.getElementById(‘gen-status’).textContent=msg;}
-function setErr(slot,msg){document.getElementById(‘err-’+slot).textContent=msg;}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setStatus(msg){document.getElementById('gen-status').textContent=msg;}
+function setErr(slot,msg){document.getElementById('err-'+slot).textContent=msg;}
 function goHome(){
-document.getElementById(‘home’).style.display=‘flex’;
-document.getElementById(‘toolbar’).classList.remove(‘show’);
-document.getElementById(‘output’).classList.remove(‘show’);
-document.getElementById(‘output’).innerHTML=’’;
-teams.a=null;teams.b=null;
-document.getElementById(‘sel-a’).value=’’;
-document.getElementById(‘sel-b’).value=’’;
-const pb = document.getElementById(‘print-btn’);
-if (pb) pb.innerHTML = ‘🖨 Print’;
-document.getElementById(‘live-ok’).textContent=’’;
-document.getElementById(‘live-err’).textContent=’’;
-document.getElementById(‘fetch-btn’).disabled=!document.getElementById(‘sel-a’).value;
-setStatus(’’);
+  document.getElementById('home').style.display='flex';
+  document.getElementById('toolbar').classList.remove('show');
+  document.getElementById('output').classList.remove('show');
+  document.getElementById('output').innerHTML='';
+  teams.a=null;teams.b=null;
+  document.getElementById('sel-a').value='';
+  document.getElementById('sel-b').value='';
+  const pb = document.getElementById('print-btn');
+  if (pb) pb.innerHTML = '&#128424; Print';
+  document.getElementById('live-ok').textContent='';
+  document.getElementById('live-err').textContent='';
+  document.getElementById('fetch-btn').disabled=!document.getElementById('sel-a').value;
+  setStatus('');
 }
 
 // ── Init ──
 loadSkillDB();
 loadLeague();
-loadKeywords();
+loadKeywords().catch(e => console.warn('keywords:', e));
 </script>
 
 </body>
