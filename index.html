@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Blood Bowl Game Sheets</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Oswald:wght@400;600;700&family=Rajdhani:wght@400;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-base:#0d1f07;--bg-surface:#111c0a;--bg-card:#162610;--bg-header:#0a1505;
+  --gold:#d4a93a;--gold-bright:#f0c84a;--gold-dim:#8a6e1e;--gold-glow:rgba(212,169,58,.18);
+  --green-line:#1e3d12;--text-primary:#e8e0cc;--text-secondary:#a89870;--text-dim:#5a5040;
+  --red-accent:#c0351a;--blue-accent:#2080b0;
+}
+body{
+  font-family:'Rajdhani',sans-serif;font-size:10pt;color:var(--text-primary);min-height:100vh;
+  background-color:var(--bg-base);
+  background-image:linear-gradient(rgba(30,61,18,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(30,61,18,.15) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ── HOME ── */
+#home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px}
+.logo{text-align:center}
+.logo h1{
+  font-family:'Cinzel Decorative',serif;font-size:22pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;
+  background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.9));line-height:1.2;text-align:center;
+}
+.logo p{font-family:'Rajdhani',sans-serif;font-size:9pt;color:var(--text-secondary);letter-spacing:2px;margin-top:6px;text-transform:uppercase;font-weight:600}
+
+/* ── MODE TABS ── */
+.mode-tabs{display:flex;gap:0;width:100%;max-width:740px;border:1px solid var(--gold-dim);border-radius:4px;overflow:hidden}
+.mode-tab{
+  flex:1;padding:10px 16px;text-align:center;cursor:pointer;transition:.2s;
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;letter-spacing:1.5px;
+  background:var(--bg-surface);color:var(--text-dim);border:none;
+}
+.mode-tab:not(:last-child){border-right:1px solid var(--gold-dim)}
+.mode-tab.active{background:var(--gold-glow);color:var(--gold-bright)}
+.mode-tab:hover:not(.active){background:rgba(212,169,58,.06);color:var(--text-secondary)}
+.mode-tab .tab-icon{font-size:12pt;display:block;margin-bottom:2px}
+.mode-tab .tab-lbl{font-size:9pt}
+
+/* ── LIVE MODE ── */
+#live-mode,#pdf-mode{display:none;width:100%;max-width:740px;flex-direction:column;gap:14px}
+#live-mode.active,#pdf-mode.active{display:flex}
+
+.live-card{background:var(--bg-card);border:1px solid var(--green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
+.live-card-hdr{
+  padding:10px 16px;background:var(--bg-header);border-bottom:1px solid var(--green-line);
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--gold-bright);display:flex;align-items:center;gap:8px;
+}
+.live-card-hdr .status-dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);flex-shrink:0;transition:.3s}
+.live-card-hdr .status-dot.loading{background:#f0c84a;animation:pulse 1s infinite}
+.live-card-hdr .status-dot.ok{background:#40c050}
+.live-card-hdr .status-dot.err{background:var(--red-accent)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.live-card-body{padding:14px 16px}
+.league-status{font-size:8.5pt;color:var(--text-secondary);margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-weight:600}
+
+/* Matchup selector */
+.matchup-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.team-select-wrap{flex:1;min-width:200px}
+.team-select-wrap label{
+  display:block;font-family:'Oswald',sans-serif;font-weight:700;font-size:8pt;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+}
+.team-select-wrap.a label{color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.6)}
+.team-select-wrap.b label{color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.6)}
+.team-select{
+  width:100%;background:rgba(0,0,0,.4);border:1px solid var(--gold-dim);
+  border-radius:3px;padding:8px 10px;color:var(--text-primary);
+  font-family:'Rajdhani',sans-serif;font-size:10pt;font-weight:600;
+  cursor:pointer;transition:.15s;outline:none;
+}
+.team-select:focus{border-color:var(--gold)}
+.team-select option{background:#1a2e10;color:var(--text-primary)}
+
+.vs-badge{
+  font-family:'Cinzel',serif;font-weight:700;font-size:14pt;
+  color:var(--text-dim);letter-spacing:2px;padding:0 4px;flex-shrink:0;margin-top:18px;
+}
+
+.fetch-btn{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;
+  letter-spacing:1.5px;padding:10px 24px;cursor:pointer;transition:.15s;
+  border-radius:3px;background:transparent;color:var(--gold);border:1px solid var(--gold-dim);
+  width:100%;margin-top:12px;
+}
+.fetch-btn:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.fetch-btn:disabled{opacity:.3;cursor:not-allowed}
+
+.live-err{font-size:8pt;color:#ff8070;margin-top:8px;font-family:'Rajdhani',sans-serif;font-weight:600;line-height:1.6;white-space:pre-wrap}
+.live-ok{font-size:8pt;color:#70d070;margin-top:8px;font-family:'Rajdhani',sans-serif;font-weight:600}
+
+/* ── PDF MODE ── */
+.warn-box{
+  background:rgba(140,110,14,.15);border:1px solid var(--gold-dim);padding:12px 16px;
+  font-size:8.5pt;line-height:1.7;border-radius:4px;color:var(--text-secondary);
+}
+.warn-box strong{color:var(--gold)}
+.slots{display:flex;gap:16px;width:100%;flex-wrap:wrap;justify-content:center}
+.slot{flex:1;min-width:280px;max-width:360px;background:var(--bg-card);border:1px solid var(--green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
+.slot-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;background:var(--bg-header);border-bottom:1px solid var(--green-line)}
+.slot-hdr.a{border-left:3px solid var(--blue-accent);color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.9),0 0 20px rgba(79,195,247,.5)}
+.slot-hdr.b{border-left:3px solid var(--red-accent);color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.9),0 0 20px rgba(255,107,107,.5)}
+.slot-hdr button{background:none;border:1px solid var(--gold-dim);color:var(--text-secondary);font-size:7.5pt;padding:2px 8px;cursor:pointer;border-radius:2px;display:none;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;transition:.15s;text-shadow:none}
+.slot-hdr button:hover{background:var(--gold-glow);color:var(--gold-bright);border-color:var(--gold)}
+.slot-hdr button.show{display:inline-block}
+.dropzone{margin:12px;border:1px dashed var(--gold-dim);padding:28px 16px;text-align:center;cursor:pointer;transition:.2s;border-radius:4px;background:var(--bg-surface)}
+.dropzone:hover,.dropzone.over{border-color:var(--gold);background:rgba(212,169,58,.06)}
+.drop-icon{font-size:26pt;display:block;margin-bottom:8px;opacity:.7}
+.drop-lbl{font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;color:var(--gold-bright)}
+.drop-hint{font-size:7.5pt;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600}
+.slot-loaded{display:none;padding:12px}
+.slot-loaded.show{display:block}
+.dropzone.hide{display:none}
+.loaded-box{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,0,0,.3);border:1px solid var(--gold-dim);border-radius:3px}
+.loaded-icon{font-size:18pt}
+.loaded-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:12pt;line-height:1.2;color:var(--gold-bright);letter-spacing:.5px}
+.loaded-sub{font-size:8pt;color:var(--text-secondary);margin-top:2px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.slot-err{padding:8px 14px;font-size:8pt;color:#ff8070;min-height:16px;line-height:1.6;white-space:pre-wrap;font-family:'Rajdhani',sans-serif;font-weight:600}
+input[type=file]{display:none}
+
+/* ── SHARED BOTTOM ── */
+.gen-wrap{width:100%;max-width:740px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.btn-gen{font-family:'Oswald',sans-serif;font-weight:700;font-size:13pt;text-transform:uppercase;letter-spacing:3px;padding:14px 40px;cursor:pointer;transition:.15s;width:100%;max-width:380px;border-radius:3px;background:transparent;color:var(--gold);border:1px solid var(--gold-dim)}
+.btn-gen:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.btn-gen:disabled{opacity:.3;cursor:not-allowed}
+#gen-status{font-size:9pt;color:var(--text-secondary);font-weight:600;min-height:18px;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase}
+.howtouse{max-width:740px;width:100%;font-size:8pt;color:var(--text-dim);line-height:1.8;border-top:1px solid var(--green-line);padding-top:14px;text-align:center;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.5px}
+.howtouse a{color:var(--gold-dim);text-decoration:none}
+.howtouse a:hover{color:var(--gold)}
+.caution-note{max-width:740px;width:100%;font-size:8pt;line-height:1.7;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.3px;background:rgba(192,53,26,.12);border:1px solid rgba(192,53,26,.4);border-left:3px solid var(--red-accent);padding:10px 14px;border-radius:3px;color:#ffaa90}
+.caution-note strong{color:#ff8070}
+
+/* ── TOOLBAR ── */
+#toolbar{display:none;position:sticky;top:0;z-index:200;background:var(--bg-header);color:var(--text-primary);padding:10px 20px;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--gold-dim);box-shadow:0 2px 20px rgba(0,0,0,.7)}
+#toolbar.show{display:flex}
+.tb-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:2px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tb-btn{font-family:'Oswald',sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:1px;padding:7px 18px;border:1px solid var(--gold-dim);background:none;color:var(--gold);cursor:pointer;white-space:nowrap;transition:.15s;border-radius:3px}
+.tb-btn:hover{background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+
+/* ── OUTPUT ── */
+#output{display:none}
+#output.show{display:block;padding:8px 0 40px}
+.page-label{font-family:'Oswald',sans-serif;font-size:8pt;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;width:190mm;margin:10mm auto 3mm;padding-bottom:3mm;border-bottom:1px solid var(--green-line)}
+.sheet{width:190mm;margin:0 auto 8mm;background:#fff;padding:10mm;box-shadow:0 4px 24px rgba(0,0,0,.5);color:#000}
+
+/* ── PRINT SHEET STYLES (white) ── */
+.team-hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:3mm;margin-bottom:3mm}
+.team-name{font-family:'Oswald',sans-serif;font-size:20pt;font-weight:700;letter-spacing:1px;line-height:1;color:#000}
+.team-race{font-family:'Oswald',sans-serif;font-size:10pt;color:#333;text-transform:uppercase;letter-spacing:2px;margin-top:1mm}
+.team-meta{text-align:right;font-size:7.5pt;line-height:1.8;color:#000}
+.meta-lbl{font-weight:700;text-transform:uppercase;font-size:6.5pt;letter-spacing:.5px}
+.info-row{display:flex;gap:4mm;margin-bottom:3mm;font-size:7.5pt}
+.ibox{border:1px solid #999;padding:2mm 3mm;flex:1}
+.ibox-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:7.5pt;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #ccc;margin-bottom:1.5mm;padding-bottom:1mm;color:#000}
+.irow{display:flex;justify-content:space-between;margin-bottom:.5mm;color:#000}
+.ik{color:#444}.iv{font-weight:700;color:#000}
+.sp-rules{font-size:7pt;line-height:1.6;color:#000}
+.roster-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:1.5px;background:#000;color:#fff;padding:1.5mm 3mm}
+table.roster{width:100%;border-collapse:collapse;font-size:7pt;color:#000}
+table.roster th{font-family:'Oswald',sans-serif;font-weight:700;font-size:6.5pt;text-transform:uppercase;letter-spacing:.5px;background:#e8e8e8;border:1px solid #bbb;padding:1.5mm 2mm;text-align:center;white-space:nowrap;color:#000}
+table.roster th.l{text-align:left}
+table.roster td{border:1px solid #ccc;padding:1.5mm 2mm;vertical-align:top;line-height:1.3;color:#000}
+table.roster td.c{text-align:center;font-family:'Oswald',sans-serif;font-weight:700}
+table.roster tr:nth-child(even) td{background:#f7f7f7}
+.pos-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:7.5pt;color:#000}
+.kw-line{font-size:6.5pt;color:#555;margin-top:1.5mm;line-height:1.5}
+.skills-hdr{font-family:'Oswald',sans-serif;font-weight:700;font-size:13pt;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:2mm;color:#000}
+.skills-sub{font-size:7pt;color:#555;margin-bottom:4mm}
+.skills-list{font-size:7.5pt;line-height:1.5;columns:2;column-gap:6mm;color:#000}
+.sk{break-inside:avoid;margin-bottom:3mm}
+.sk-name{font-weight:700;font-family:'Oswald',sans-serif;font-size:8pt;letter-spacing:.3px}
+.sk-elite{font-size:6pt;font-weight:700;background:#000;color:#fff;padding:0 3px;border-radius:2px;margin-left:2px;vertical-align:middle}
+.sk-cat{font-size:6.5pt;color:#666;font-style:italic;margin-left:3px;font-family:'Rajdhani',sans-serif}
+
+@media print{
+  body{background:#fff!important;background-image:none!important}
+  #home,#toolbar,.page-label{display:none!important}
+  #output{display:block!important;padding:0}
+  .sheet{margin:0;box-shadow:none;width:100%;padding:8mm;page-break-after:always}
+  .sheet:last-child{page-break-after:avoid}
+  .skills-list{columns:2}
+}
+@media(max-width:600px){
+  .logo h1{font-size:17pt}
+  .slots{flex-direction:column}
+  .slot{min-width:100%}
+  .sheet{width:100%;margin:4px auto;padding:4mm;box-shadow:none}
+  .page-label{width:100%}
+  .info-row{flex-direction:column}
+  .skills-list{columns:1}
+  table.roster{font-size:5.5pt}
+  table.roster th{font-size:5pt}
+  .matchup-row{flex-direction:column}
+  .vs-badge{margin-top:0}
+}
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="logo">
+    <h1>Blood Bowl<br>Game Sheets</h1>
+    <p>COBB Season 3 &nbsp;&middot;&nbsp; Tourplay Roster Import</p>
+  </div>
+
+  <!-- MODE TABS -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-live" onclick="switchMode('live')">
+      <span class="tab-icon">&#127760;</span>
+      <span class="tab-lbl">Live from Tourplay</span>
+    </button>
+    <button class="mode-tab" id="tab-pdf" onclick="switchMode('pdf')">
+      <span class="tab-icon">&#128196;</span>
+      <span class="tab-lbl">Upload PDF</span>
+    </button>
+  </div>
+
+  <!-- LIVE MODE -->
+  <div id="live-mode" class="active">
+    <div class="live-card">
+      <div class="live-card-hdr">
+        <span class="status-dot" id="league-dot"></span>
+        <span id="league-hdr-text">Loading COBB S03 Roster&hellip;</span>
+      </div>
+      <div class="live-card-body">
+        <div class="league-status" id="league-status">Connecting to Tourplay&hellip;</div>
+
+        <div class="matchup-row">
+          <div class="team-select-wrap a">
+            <label>&#9632; Team A</label>
+            <select class="team-select" id="sel-a" onchange="onSelectChange()">
+              <option value="">— Loading teams —</option>
+            </select>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="team-select-wrap b">
+            <label>&#9632; Team B</label>
+            <select class="team-select" id="sel-b" onchange="onSelectChange()">
+              <option value="">— Loading teams —</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="fetch-btn" id="fetch-btn" disabled onclick="fetchSelectedTeams()">
+          &#8987; Fetch Rosters &amp; Generate Sheet
+        </button>
+        <div class="live-err" id="live-err"></div>
+        <div class="live-ok" id="live-ok"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF MODE -->
+  <div id="pdf-mode">
+    <div class="warn-box">
+      &#9888; Export from Tourplay using the <strong>Print Button</strong> on the upper right of the Team Screen: Set Printer &rarr; <strong>&ldquo;Save to PDF&rdquo;</strong>. Do <strong>NOT</strong> use &ldquo;Microsoft Print to PDF&rdquo; if an option &mdash; that creates an image file this app cannot read.
+    </div>
+    <div class="slots">
+      <div class="slot">
+        <div class="slot-hdr a"><span>Team A</span><button id="clear-a" onclick="clearSlot('a')">&#10005; Clear</button></div>
+        <div class="dropzone" id="dz-a" ondragover="onDragOver(event,'a')" ondragleave="onDragLeave('a')" ondrop="onDrop(event,'a')" onclick="document.getElementById('fi-a').click()">
+          <span class="drop-icon">&#128196;</span>
+          <div class="drop-lbl">Drop Tourplay PDF here</div>
+          <div class="drop-hint">or tap to browse</div>
+        </div>
+        <div class="slot-loaded" id="loaded-a"><div class="loaded-box"><span class="loaded-icon">&#9989;</span><div><div class="loaded-name" id="ln-a"></div><div class="loaded-sub" id="ls-a"></div></div></div></div>
+        <div class="slot-err" id="err-a"></div>
+        <input type="file" id="fi-a" accept=".pdf" onchange="onFileSelect(event,'a')">
+      </div>
+      <div class="slot">
+        <div class="slot-hdr b"><span>Team B <span style="font-weight:400;font-size:9pt;opacity:.6;font-family:'Rajdhani',sans-serif">(optional)</span></span><button id="clear-b" onclick="clearSlot('b')">&#10005; Clear</button></div>
+        <div class="dropzone" id="dz-b" ondragover="onDragOver(event,'b')" ondragleave="onDragLeave('b')" ondrop="onDrop(event,'b')" onclick="document.getElementById('fi-b').click()">
+          <span class="drop-icon">&#128196;</span>
+          <div class="drop-lbl">Drop Tourplay PDF here</div>
+          <div class="drop-hint">or tap to browse</div>
+        </div>
+        <div class="slot-loaded" id="loaded-b"><div class="loaded-box"><span class="loaded-icon">&#9989;</span><div><div class="loaded-name" id="ln-b"></div><div class="loaded-sub" id="ls-b"></div></div></div></div>
+        <div class="slot-err" id="err-b"></div>
+        <input type="file" id="fi-b" accept=".pdf" onchange="onFileSelect(event,'b')">
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARED GENERATE -->
+  <div class="gen-wrap" id="pdf-gen-wrap" style="display:none;width:100%;max-width:740px;text-align:center;flex-direction:column;align-items:center;gap:10px">
+    <div id="gen-status">Load at least one Tourplay PDF to begin</div>
+    <button class="btn-gen" id="btn-gen" disabled onclick="generateFromPDF()">Generate Game Sheet</button>
+  </div>
+
+  <div class="howtouse">
+    Works for any race &nbsp;&middot;&nbsp; One team or two for match-day
+  </div>
+  <div class="caution-note">
+    &#9888; <strong>Teams over 15 players:</strong> Tourplay may shrink the print export page, which can cause stats or skills to be cut off or misread. If your sheet looks wrong, check your team count and try printing at 100% scale with no margins.
+  </div>
+</div>
+
+<div id="toolbar">
+  <div class="tb-title" id="tb-title">BB Game Sheet</div>
+  <button class="tb-btn" onclick="window.print()">&#128424; Print</button>
+  <button class="tb-btn" onclick="goHome()">&#8617; New Sheet</button>
+</div>
+
+<div id="output"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── Config ──
+const LEAGUE_SLUG    = 'cobb-s03-sponsored-by-modern-games';
+const CATEGORY_ID    = '23924';
+const TOURPLAY_BASE  = 'https://tourplay.net';
+const INSCRIPTIONS_URL = `${TOURPLAY_BASE}/api/inscriptions/${LEAGUE_SLUG}/category/${CATEGORY_ID}/inscriptions?page=0&pageSize=75`;
+// Cloudflare Worker proxy — handles CORS for Tourplay API
+const CF_WORKER = 'https://bb-gamesheet-app.chapman-thor.workers.dev';
+// Worker intercepts /api/* paths and adds Access-Control-Allow-Origin: *
+
+// Race name mapping from Tourplay teamRace strings
+const RACE_MAP = {
+  'ChaosChosen_BB2025':       'Chaos Chosen',
+  'Khemri_BB2025':            'Tomb Kings',
+  'Orc_BB2025':               'Orc',
+  'Underworld_BB2025':        'Underworld Denizens',
+  'Lizardmen_BB2025':         'Lizardmen',
+  'Khorne_BB2025':            'Khorne',
+  'DarkElf_BB2025':           'Dark Elf',
+  'Vampire_BB2025':           'Vampire',
+  'Snotling_BB2025':          'Snotling',
+  'HighElf_BB2025_Legacy':    'High Elf',
+  'HighElf_BB2025':           'High Elf',
+  'Norse_BB2025':             'Norse',
+  'Nurgle_BB2025':            'Nurgle',
+  'Skaven_BB2025':            'Skaven',
+  'OldWorldAlliance_BB2025':  'Old World Alliance',
+  'WoodElf_BB2025':           'Wood Elf',
+  'BlackOrc_BB2025':          'Black Orc',
+  'Amazon_BB2025':            'Amazon',
+  'Human_BB2025':             'Human',
+  'Halfling_BB2025':          'Halfling',
+  'Dwarf_BB2025':             'Dwarf',
+  'Goblin_BB2025':            'Goblin',
+  'Necromantic_BB2025':       'Necromantic',
+  'Chaos_BB2025':             'Chaos Renegades',
+  'Elven_BB2025':             'Elven Union',
+};
+function cleanRace(r) {
+  if (!r) return '';
+  if (RACE_MAP[r]) return RACE_MAP[r];
+  // Fallback: strip _BB2025 suffix and add spaces before capitals
+  return r.replace(/_BB2025.*$/,'').replace(/([A-Z])/g,' $1').trim();
+}
+
+// COBB S03 — all 20 teams, confirmed from API response
+const FALLBACK_TEAMS = [
+  { name:"Superfluous Nimiety",                  race:'Chaos Chosen',        id:'183924', coach:'fe2mike'          },
+  { name:"Djaf Destroyers",                      race:'Tomb Kings',           id:'184150', coach:'Coalerbear'       },
+  { name:"D'Orks",                               race:'Orc',                  id:'184613', coach:'Sevcav'           },
+  { name:"Robber Barons",                        race:'Underworld Denizens',  id:'184693', coach:'CoolPretzel'      },
+  { name:"The Sauros Squad",                     race:'Lizardmen',            id:'184729', coach:'Felix Fernandez'  },
+  { name:"Khornegie's Union Bashers",            race:'Khorne',               id:'184857', coach:'doristhelil'      },
+  { name:"Har-Ganeth Headtakers",                race:'Dark Elf',             id:'184888', coach:'TheUsual1986'     },
+  { name:"Nosferatoes",                          race:'Vampire',              id:'184898', coach:'Tx-Ranger2'       },
+  { name:"Snotholm Syndrome",                    race:'Snotling',             id:'184909', coach:'Randomis Ray'     },
+  { name:"ELFS",                                 race:'High Elf',             id:'185116', coach:'Peter Askew'      },
+  { name:"Stormfjord Reavers",                   race:'Norse',                id:'185429', coach:'Nate Dogg'        },
+  { name:"Children of Ash and Elm",              race:'Norse',                id:'185528', coach:'Jason Stevens'    },
+  { name:"Gross Bay Pukers",                     race:'Nurgle',               id:'186347', coach:'Destrogio2'       },
+  { name:"Limburger Cheesers",                   race:'Skaven',               id:'186352', coach:'KhorneFC'         },
+  { name:"Blackstone Badgers",                   race:'Old World Alliance',   id:'186356', coach:'dredge77'         },
+  { name:"Bad Blitzas",                          race:'Orc',                  id:'186357', coach:'TwoCage'          },
+  { name:"King gizzard and the Lizard Wizards",  race:'Lizardmen',            id:'186472', coach:'Christian Warren' },
+  { name:"Modryn Moonlighters",                  race:'Wood Elf',             id:'186668', coach:'Minimurder28'     },
+  { name:"Prime Panthers",                       race:'Amazon',               id:'188561', coach:'volfiedr'         },
+  { name:"The Black Mountain Stout Swiggaz",     race:'Black Orc',            id:'188726', coach:'Collette'         },
+];
+
+// ── State ──
+const teams = {a:null, b:null};
+let skillDB = {};
+let leagueTeams = [];
+let currentMode = 'live';
+
+// ════════════════════════════════════════
+// MODE SWITCHING
+// ════════════════════════════════════════
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('tab-live').classList.toggle('active', mode==='live');
+  document.getElementById('tab-pdf').classList.toggle('active', mode==='pdf');
+  document.getElementById('live-mode').classList.toggle('active', mode==='live');
+  document.getElementById('pdf-mode').classList.toggle('active', mode==='pdf');
+  document.getElementById('pdf-gen-wrap').style.display = mode==='pdf' ? 'flex' : 'none';
+}
+
+// ════════════════════════════════════════
+// TOURPLAY API FETCH (with CORS proxies)
+// ════════════════════════════════════════
+async function tourplayFetch(url) {
+  // Route through Cloudflare Worker which adds CORS headers
+  // Worker URL pattern: replace https://tourplay.net with CF_WORKER
+  const workerUrl = url.replace('https://tourplay.net', CF_WORKER);
+  try {
+    const r = await fetch(workerUrl, {
+      headers: { 'Accept': 'application/json, text/plain, */*' },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (r.ok) return await r.json();
+    throw new Error(`HTTP ${r.status}`);
+  } catch(e) {
+    // Fallback: try direct (works if Tourplay ever opens CORS)
+    try {
+      const r2 = await fetch(url, {
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (r2.ok) return await r2.json();
+    } catch(e2) { /* fall through */ }
+    throw new Error(`Tourplay API unreachable: ${e.message}`);
+  }
+}
+
+// ════════════════════════════════════════
+// LOAD LEAGUE — fetch all 20 teams
+// ════════════════════════════════════════
+async function loadLeague() {
+  const dot    = document.getElementById('league-dot');
+  const hdr    = document.getElementById('league-hdr-text');
+  const status = document.getElementById('league-status');
+
+  dot.className = 'status-dot loading';
+  hdr.textContent = 'Connecting to COBB S03\u2026';
+  status.textContent = 'Fetching league roster from Tourplay\u2026';
+
+  try {
+    const data = await tourplayFetch(INSCRIPTIONS_URL);
+    // Response shape: { "23924": [ ...inscriptions ] }
+    const list = data[CATEGORY_ID] || data.inscriptions || (Array.isArray(data) ? data : []);
+
+    leagueTeams = list
+      .filter(item => item.roster && item.roster.id)
+      .map(item => ({
+        name:  item.roster.teamName  || '(Unknown)',
+        race:  cleanRace(item.roster.teamRace),
+        id:    String(item.roster.id),
+        coach: item.player?.userNameToShow || '',
+      }))
+      .sort((a,b) => a.name.localeCompare(b.name));
+
+    if (leagueTeams.length === 0) throw new Error('Empty team list in API response');
+
+    dot.className = 'status-dot ok';
+    hdr.textContent = `COBB S03 \u2014 ${leagueTeams.length} Teams`;
+    status.textContent = `${leagueTeams.length} teams loaded live \u00B7 Select matchup below`;
+    document.getElementById('live-err').textContent = '';
+
+  } catch(e) {
+    console.warn('League fetch failed, using fallback:', e.message);
+    leagueTeams = [...FALLBACK_TEAMS].sort((a,b) => a.name.localeCompare(b.name));
+    dot.className = 'status-dot';  // neutral — not an error, just offline
+    hdr.textContent = 'COBB S03 \u2014 Saved Roster';
+    status.textContent = `${leagueTeams.length} teams (offline mode) \u00B7 Select matchup below`;
+    document.getElementById('live-err').textContent = '';
+  }
+
+  populateSelects();
+}
+
+function populateSelects() {
+  const makeOpts = (excludeId='') =>
+    '<option value="">— Select team —</option>' +
+    leagueTeams.map(t =>
+      `<option value="${t.id}">${esc(t.name)} &nbsp;(${esc(t.race)}) &mdash; ${esc(t.coach)}</option>`
+    ).join('');
+
+  document.getElementById('sel-a').innerHTML = makeOpts();
+  document.getElementById('sel-b').innerHTML = makeOpts();
+  onSelectChange();
+}
+
+function onSelectChange() {
+  const a = document.getElementById('sel-a').value;
+  const b = document.getElementById('sel-b').value;
+  document.getElementById('fetch-btn').disabled = !a;
+  // Disable same team in both selects
+  [...document.getElementById('sel-a').options].forEach(o => o.disabled = o.value && o.value===b);
+  [...document.getElementById('sel-b').options].forEach(o => o.disabled = o.value && o.value===a);
+}
+
+// ════════════════════════════════════════
+// FETCH SELECTED ROSTERS & GENERATE
+// ════════════════════════════════════════
+async function fetchSelectedTeams() {
+  const idA = document.getElementById('sel-a').value;
+  const idB = document.getElementById('sel-b').value;
+  if (!idA) return;
+
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled = true;
+  btn.textContent = '\u23F3 Fetching rosters\u2026';
+  document.getElementById('live-err').textContent = '';
+  document.getElementById('live-ok').textContent = '';
+
+  if (Object.keys(skillDB).length === 0) {
+    setStatus('Loading skill database\u2026');
+    await loadSkillDB();
+  }
+
+  const idsToFetch = [idA, idB].filter(Boolean);
+  const fetched = [];
+
+  for (const id of idsToFetch) {
+    setStatus(`Fetching roster ${id}\u2026`);
+    try {
+      const data = await tourplayFetch(`${TOURPLAY_BASE}/api/rosters/${id}`);
+      console.log(`Roster ${id}:`, data);
+      fetched.push(parseTourplayAPI(data, id));
+    } catch(e) {
+      document.getElementById('live-err').textContent =
+        `\u26A0 Could not fetch roster ${id}: ${e.message}\n\nTry the PDF tab instead.`;
+      btn.disabled = false;
+      btn.textContent = '\u26A1 Fetch Rosters & Generate Sheet';
+      setStatus('');
+      return;
+    }
+  }
+
+  teams.a = fetched[0] || null;
+  teams.b = fetched[1] || null;
+
+  document.getElementById('live-ok').textContent =
+    '\u2713 ' + fetched.map(t=>t.teamName).join(' vs ');
+
+  setStatus('Building sheet\u2026');
+  await generateSheet();
+
+  btn.disabled = false;
+  btn.textContent = '\u26A1 Fetch Rosters & Generate Sheet';
+}
+
+// ════════════════════════════════════════
+// PARSE TOURPLAY ROSTER API JSON
+// ════════════════════════════════════════
+function parseTourplayAPI(data, rosterId) {
+  // Log raw response so we can refine the parser after first real test
+  console.log('Raw roster data for', rosterId, JSON.stringify(data, null, 2));
+
+  // Try various response shapes Tourplay might use
+  const r = data.roster || data.team || data;
+
+  const teamName = r.teamName || r.name || r.team_name || 'Unknown Team';
+  const race     = cleanRace(r.teamRace || r.race || r.rosterType || '');
+  const ctv      = String(r.ctv || r.teamValue || r.tv || '');
+  const coach    = data.player?.userNameToShow || r.coachName || r.coach?.name || '';
+  const rerolls  = String(r.rerolls ?? r.teamRerolls ?? '');
+  const dedicatedFans = String(r.dedicatedFans ?? r.fans ?? '');
+  const apothecary = r.apothecary != null ? (r.apothecary ? 'Yes' : 'No') : '';
+
+  // Special rules — Tourplay stores as league name or array
+  const specialRules = [];
+  if (r.leagueName) specialRules.push(r.leagueName);
+  if (Array.isArray(r.specialRules)) specialRules.push(...r.specialRules);
+
+  // Player list — try various field names
+  const playerList = r.players || r.roster || r.playerList || data.players || [];
+
+  const players = playerList.map(p => {
+    const num      = String(p.number ?? p.num ?? p.positionNumber ?? '?');
+    const position = p.positionName || p.position || p.type || '';
+    const skills   = parseAPISkills(p.skills || p.skillList || []);
+
+    // Stats — Tourplay may return as numbers or strings with + suffix
+    const fmtStat = (v, isPlusStat=false) => {
+      if (v == null || v === '') return '';
+      const s = String(v);
+      if (isPlusStat && !s.includes('+')) return s + '+';
+      return s;
+    };
+
+    const stats = [
+      fmtStat(p.ma || p.movement),
+      fmtStat(p.st || p.strength),
+      fmtStat(p.ag || p.agility, true),
+      fmtStat(p.pa || p.passing, true),
+      fmtStat(p.av || p.armour, true),
+    ];
+
+    return { num, position, stats, skills };
+  }).sort((a,b) => parseInt(a.num) - parseInt(b.num));
+
+  const usedSkills = [...new Set(players.flatMap(p => p.skills))];
+
+  return {
+    teamName, race, ctv, coach, rerolls, dedicatedFans, apothecary,
+    specialRules, players, usedSkills, source: 'api',
+  };
+}
+
+function parseAPISkills(skillData) {
+  if (!skillData?.length) return [];
+  return skillData
+    .map(s => typeof s === 'string' ? s : (s.name || s.skillName || s.skill_name || ''))
+    .filter(Boolean);
+}
+
+// ════════════════════════════════════════
+// SKILL DATABASE (bbtc.pl)
+// ════════════════════════════════════════
+async function loadSkillDB() {
+  const SKILLS_URL = 'https://bbtc.pl/resources/bb2025/skills';
+  const URLS = [
+    // Try via Worker first (handles CORS), then direct
+    CF_WORKER + '/proxy?url=' + encodeURIComponent(SKILLS_URL),
+    SKILLS_URL,
+    'https://corsproxy.io/?' + encodeURIComponent(SKILLS_URL),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(SKILLS_URL),
+  ];
+  for (const url of URLS) {
+    try {
+      const r = await fetch(url, {signal: AbortSignal.timeout(10000)});
+      if (r.ok) {
+        const text = await r.text();
+        if (text.includes('ACTIVE') || text.includes('PASSIVE')) {
+          skillDB = parseSkillPage(text);
+          console.log('Skill DB loaded from:', url, '— skills:', Object.keys(skillDB).length);
+          return;
+        }
+      }
+    } catch(e) { console.warn('Skill URL failed:', url, e.message); }
+  }
+  console.warn('Could not load skill DB — skills page will show "See rulebook"');
+}
+function parseSkillPage(html) {
+  const db={};const doc=new DOMParser().parseFromString(html,'text/html');
+  doc.querySelectorAll('h2').forEach(h2=>{
+    const raw=h2.textContent.trim();
+    const m=raw.match(/^(.+?)\s*\((ACTIVE|PASSIVE)(?:,\s*ELITE)?\)\s*[-\u2013]\s*(.+)$/);
+    if(!m)return;
+    const[,name,type,cat]=m;const elite=raw.includes('ELITE');
+    const parts=[];let sib=h2.nextElementSibling;
+    while(sib&&sib.tagName!=='H2'){if(sib.textContent.trim())parts.push(sib.textContent.trim());sib=sib.nextElementSibling;}
+    db[nk(name.trim())]={name:name.trim(),type,cat:cat.trim(),elite,desc:parts.join(' ').replace(/\s+/g,' ').trim()};
+  });return db;
+}
+function nk(s){return s.replace(/\*/g,'').replace(/\s*\(\d[\d+]*\)\s*/g,'').toLowerCase().replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();}
+function lookupSkill(name){const key=nk(name);if(skillDB[key])return skillDB[key];for(const[k,v]of Object.entries(skillDB))if(key.startsWith(k)||k.startsWith(key))return v;return null;}
+
+// ════════════════════════════════════════
+// PDF PARSING
+// ════════════════════════════════════════
+async function isImagePDF(pdf){const pg=await pdf.getPage(1);const ct=await pg.getTextContent();return ct.items.map(i=>i.str).join('').trim().length<20;}
+
+async function parseTourplayPDF(pdf){
+  const pg=await pdf.getPage(1);const ct=await pg.getTextContent();
+  const words=ct.items.filter(i=>i.str&&i.str.trim()).map(i=>({text:i.str.trim(),x0:i.transform[4],top:-i.transform[5]}));
+  words.sort((a,b)=>a.top-b.top||a.x0-b.x0);
+  const rows=[];let cr=[],cy=null;
+  for(const w of words){const y=Math.round(w.top);if(cy===null||Math.abs(y-cy)>6){if(cr.length)rows.push(cr);cr=[w];cy=y;}else cr.push(w);}
+  if(cr.length)rows.push(cr);
+  const rt=row=>row.map(w=>w.text).join(' ');
+  let hi=-1,SX=283,NX=464;
+  for(let i=0;i<rows.length;i++){const t=rt(rows[i]);if(t.includes('No.')&&t.includes('SKILLS')&&t.includes('TRAITS')){hi=i;const sw=rows[i].find(w=>w.text==='SKILLS');const nw=rows[i].find(w=>w.text==='NI');if(sw)SX=sw.x0;if(nw)NX=nw.x0;break;}}
+  if(hi===-1)throw new Error('IMAGE_PDF');
+  const PM=SX-120;
+  const dd=s=>{let o='',i=0;while(i<s.length){o+=s[i];i+=(i+1<s.length&&s[i]===s[i+1])?2:1;}return o.trim();};
+  const tt=s=>s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');
+  const teamName=tt(dd(rt(rows[0]||[])).replace(/^[A-Z]{1,2}\s+/,'').trim());
+  const r2=rt(rows[2]||[]);
+  const ctvM=r2.match(/([\d,]+)\s*CTV/i);const ctv=ctvM?ctvM[1]:'';
+  const race=tt(dd(r2.replace(/([\d,]+)\s*CTV\s*/i,'').trim()));
+  let coach='',rerolls='',dedicatedFans='',apothecary='';const specialRules=[];let inSide=false;
+  for(let i=hi+1;i<rows.length;i++){
+    const t=rt(rows[i]);
+    if(/SIDELINE/i.test(t)&&i>hi+3){inSide=true;continue;}
+    if(!inSide)continue;
+    if(/RRooookkiiee|Rookie\s*[^\w]/.test(t)&&!coach){const cw=rows[i].filter(w=>w.x0<PM+50&&!/^[·R\d]/.test(w.text)&&w.text.length>1);if(cw.length)coach=dd(cw.map(w=>w.text).join(' '));}
+    if(/Re.?rolls/i.test(t)&&!rerolls){for(const r2 of[rows[i],rows[i+1]||[]]){const n=r2.find(w=>/^\d$/.test(w.text)&&w.x0>300);if(n){rerolls=n.text;break;}}}
+    if(/Dedicated.{0,10}fans/i.test(t)){const n=rows[i].filter(w=>/^\d$/.test(w.text));if(n.length)dedicatedFans=n[n.length-1].text;}
+    if(/Apothecary\s*Yes/i.test(t))apothecary='Yes';else if(/Apothecary\s*No/i.test(t))apothecary='No';
+    if(/Necromancer\s*Yes/i.test(t))apothecary='Yes (Necromancer)';
+    for(const sr of["Brawlin' Brutes",'Badlands Brawl','Chaos Clash','Sylvanian Spotlight','Team Captain','Lustrian Superleague'])
+      if(t.toLowerCase().includes(sr.toLowerCase())&&!specialRules.includes(sr))specialRules.push(sr);
+  }
+  const cs=s=>s.replace(/(.)\1{2,}/g,'$1');
+  const players=[];let cur=null,pend=[];
+  for(let i=hi+1;i<rows.length;i++){
+    const row=rows[i],t=rt(row);
+    if(/SIDELINE/i.test(t)&&i>hi+3)break;
+    const pw=row.filter(w=>w.x0<PM),sw=row.filter(w=>w.x0>=PM&&w.x0<SX),kw=row.filter(w=>w.x0>=SX&&w.x0<NX);
+    const pt=pw.map(w=>w.text).join(' ').trim(),kt=kw.map(w=>w.text).join(' ').trim();
+    const pm=pt.match(/^#(\d+)\s*(.*)/);
+    if(pm){if(cur)players.push(fin(cur));const num=pm[1],pos=pm[2].replace(/\d{3,}.*$/,'').trim();const stats=[];for(const w of sw){const c=cs(w.text);if(/^\d+\+?$/.test(c)&&stats.length<5)stats.push(c);}cur={num,position:pos,stats,raw:[...pend,kt].filter(Boolean).join(' ')};pend=[];}
+    else if(/^\(/.test(pt)){}
+    else if(!pt&&kt){if(cur)cur.raw+=' '+kt;else pend.push(kt);}
+    else if(/\bMA\b.*\bST\b/.test(t)&&kt){pend.push(kt);}
+    else if(kt&&cur){cur.raw+=' '+kt;}
+  }
+  if(cur)players.push(fin(cur));
+  const usedSkills=[...new Set(players.flatMap(p=>p.skills))];
+  return{teamName,race,ctv,coach,rerolls,dedicatedFans,apothecary,specialRules,players,usedSkills,source:'pdf'};
+}
+function fin(p){
+  let r=p.raw;
+  r=r.replace(/[·\u2756\u2605\u2295\u2606]\s*\S*/g,'').replace(/\bx\d+\b/g,'').replace(/\b\d+\/\d+\b/g,'');
+  r=r.replace(/Insigni.cant/g,'Insignificant').replace(/\s+/g,' ').trim().replace(/^[,;]+|[,;]+$/g,'');
+  const skills=r.split(/,(?![^(]*\))/).map(s=>s.trim().replace(/^[,;.\s]+|[,;.\s]+$/g,'')).filter(s=>s.length>1&&!/^[\d·.\-*]+$/.test(s));
+  return{...p,skills,raw:undefined};
+}
+
+// ════════════════════════════════════════
+// PDF UI
+// ════════════════════════════════════════
+function onDragOver(e,s){e.preventDefault();document.getElementById('dz-'+s).classList.add('over');}
+function onDragLeave(s){document.getElementById('dz-'+s).classList.remove('over');}
+function onDrop(e,s){e.preventDefault();onDragLeave(s);const f=e.dataTransfer.files[0];if(f)handleFile(f,s);}
+function onFileSelect(e,s){if(e.target.files[0])handleFile(e.target.files[0],s);}
+async function handleFile(file,slot){
+  if(!file.name.toLowerCase().endsWith('.pdf')){setErr(slot,'Please select a PDF file.');return;}
+  setErr(slot,'');setStatus('Reading PDF\u2026');
+  try{
+    const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    if(await isImagePDF(pdf)){setErr(slot,'\u26A0 Made with "Microsoft Print to PDF".\nUse Tourplay Print button \u2192 "Save to PDF" instead.');teams[slot]=null;showLoaded(slot,null);setStatus('');updateBtn();return;}
+    setStatus('Parsing roster\u2026');
+    const data=await parseTourplayPDF(pdf);data.fileName=file.name;
+    teams[slot]=data;showLoaded(slot,data);
+    setStatus(teams.a||teams.b?'Ready':'');
+  }catch(err){
+    setErr(slot,err.message==='IMAGE_PDF'?'\u26A0 Roster not found. Use "Save to PDF" export.':'Parse error: '+err.message);
+    teams[slot]=null;showLoaded(slot,null);setStatus('');console.error(err);
+  }
+  updateBtn();
+}
+function showLoaded(slot,data){
+  const dz=document.getElementById('dz-'+slot),ld=document.getElementById('loaded-'+slot),clr=document.getElementById('clear-'+slot);
+  if(data){document.getElementById('ln-'+slot).textContent=data.teamName||'(unknown)';document.getElementById('ls-'+slot).textContent=(data.race||'')+' \u00B7 '+data.players.length+' players'+(data.ctv?' \u00B7 CTV '+data.ctv:'');dz.classList.add('hide');ld.classList.add('show');clr.classList.add('show');}
+  else{dz.classList.remove('hide');ld.classList.remove('show');clr.classList.remove('show');}
+}
+function clearSlot(slot){teams[slot]=null;document.getElementById('fi-'+slot).value='';setErr(slot,'');showLoaded(slot,null);updateBtn();}
+function updateBtn(){document.getElementById('btn-gen').disabled=!(teams.a||teams.b);}
+async function generateFromPDF(){
+  setStatus('Loading skill database\u2026');document.getElementById('btn-gen').disabled=true;
+  if(Object.keys(skillDB).length===0)await loadSkillDB();
+  await generateSheet();
+}
+
+// ════════════════════════════════════════
+// SHEET GENERATION
+// ════════════════════════════════════════
+async function generateSheet(){
+  setStatus('Building sheet\u2026');
+  const output=document.getElementById('output');output.innerHTML='';
+  const active=[teams.a,teams.b].filter(Boolean);
+  if(!active.length){setStatus('No team data.');return;}
+  document.getElementById('tb-title').textContent=active.map(t=>t.teamName).join(' vs ');
+  for(const team of active)output.innerHTML+=buildTeamHTML(team);
+  document.getElementById('home').style.display='none';
+  document.getElementById('toolbar').classList.add('show');
+  output.classList.add('show');setStatus('');
+}
+
+function buildTeamHTML(t){
+  return '<div class="page-label">Roster \u2014 '+esc(t.teamName)+'</div><div class="sheet">'+buildRosterPage(t)+'</div>'+
+    '<div class="page-label">Skills Reference \u2014 '+esc(t.teamName)+'</div><div class="sheet">'+buildSkillsPage(t)+'</div>';
+}
+function buildRosterPage(t){
+  const rows=t.players.map(p=>{
+    const[ma,st,ag,pa,av]=p.stats;
+    const sk=p.skills.length?p.skills.map(s=>esc(s)).join(', '):'&mdash;';
+    return '<tr><td class="c">'+esc(p.num)+'</td><td><div class="pos-name">'+esc(p.position)+'</div></td>'+
+      '<td class="c">'+esc(ma||'')+'</td><td class="c">'+esc(st||'')+'</td>'+
+      '<td class="c">'+esc(ag||'')+'</td><td class="c">'+esc(pa||'')+'</td>'+
+      '<td class="c">'+esc(av||'')+'</td><td style="font-size:6.5pt">'+sk+'</td></tr>';
+  }).join('');
+  const rrLine=t.rerolls?'<div class="irow"><span class="ik">Re-rolls</span><span class="iv">'+esc(t.rerolls)+'</span></div>':'';
+  const dfLine=t.dedicatedFans?'<div class="irow"><span class="ik">Dedicated Fans</span><span class="iv">'+esc(t.dedicatedFans)+'</span></div>':'';
+  const apoLine=t.apothecary?'<div class="irow"><span class="ik">Apothecary</span><span class="iv">'+esc(t.apothecary)+'</span></div>':'';
+  const noSide=!rrLine&&!dfLine&&!apoLine?'<div style="color:#999;font-size:7pt;font-style:italic">Not available</div>':'';
+  const srcBadge=t.source==='api'?'<span style="font-size:6pt;background:#1a5c1a;color:#70d070;padding:1px 5px;border-radius:2px;margin-left:5px;font-family:Oswald,sans-serif;font-weight:700;letter-spacing:1px">LIVE</span>':'';
+  return '<div class="team-hdr"><div><div class="team-name">'+esc(t.teamName)+srcBadge+'</div><div class="team-race">'+esc(t.race)+'</div></div>'+
+    '<div class="team-meta">'+(t.coach?'<div><span class="meta-lbl">Coach:</span> '+esc(t.coach)+'</div>':'')+
+    (t.ctv?'<div><span class="meta-lbl">CTV:</span> '+esc(t.ctv)+'k</div>':'')+
+    '<div><span class="meta-lbl">Ruleset:</span> BB2025</div></div></div>'+
+    '<div class="info-row">'+
+      '<div class="ibox"><div class="ibox-title">Sideline Staff</div>'+apoLine+rrLine+dfLine+noSide+'</div>'+
+      '<div class="ibox"><div class="ibox-title">Special Rules</div><div class="sp-rules">'+
+        (t.specialRules.length?t.specialRules.map(r=>'&bull; '+esc(r)).join('<br>'):'<em style="color:#888">None listed</em>')+
+      '</div></div>'+
+      '<div class="ibox"><div class="ibox-title">Squad</div>'+
+        '<div class="irow"><span class="ik">Players</span><span class="iv">'+t.players.length+'</span></div>'+
+        (t.ctv?'<div class="irow"><span class="ik">CTV</span><span class="iv">'+esc(t.ctv)+'k</span></div>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="roster-title">Players</div>'+
+    '<table class="roster"><thead><tr><th>#</th><th class="l">Position</th>'+
+      '<th>MA</th><th>ST</th><th>AG</th><th>PA</th><th>AV</th><th class="l">Skills &amp; Traits</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '<div class="kw-line"><strong>*</strong> = Must always use when applicable</div>';
+}
+function buildSkillsPage(t){
+  const sorted=[...new Set(t.usedSkills)].sort((a,b)=>nk(a).localeCompare(nk(b)));
+  const items=sorted.map(name=>{
+    const info=lookupSkill(name);
+    if(!info)return '<div class="sk"><span class="sk-name">'+esc(name)+':</span> <em style="color:#999">See rulebook</em></div>';
+    const elite=info.elite?'<span class="sk-elite">ELITE</span>':'';
+    const cat='<span class="sk-cat">'+esc(info.type)+' &middot; '+esc(info.cat)+'</span>';
+    return '<div class="sk"><span class="sk-name">'+esc(info.name)+elite+'</span>'+cat+'<br>'+esc(info.desc)+'</div>';
+  }).join('');
+  return '<div class="skills-hdr">'+esc(t.teamName)+' &ndash; Skills &amp; Traits</div>'+
+    '<div class="skills-sub">'+esc(t.race)+' &nbsp;&middot;&nbsp; All skills used by this roster &nbsp;&middot;&nbsp; '+
+    '<span class="sk-elite">ELITE</span> = costs extra SPP &nbsp;&middot;&nbsp; * = must always use</div>'+
+    '<div class="skills-list">'+(items||'<em style="color:#999">No skills found</em>')+'</div>';
+}
+
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setStatus(msg){document.getElementById('gen-status').textContent=msg;}
+function setErr(slot,msg){document.getElementById('err-'+slot).textContent=msg;}
+function goHome(){
+  document.getElementById('home').style.display='flex';
+  document.getElementById('toolbar').classList.remove('show');
+  document.getElementById('output').classList.remove('show');
+  document.getElementById('output').innerHTML='';
+  teams.a=null;teams.b=null;
+  document.getElementById('sel-a').value='';
+  document.getElementById('sel-b').value='';
+  document.getElementById('live-ok').textContent='';
+  document.getElementById('live-err').textContent='';
+  document.getElementById('fetch-btn').disabled=!document.getElementById('sel-a').value;
+  setStatus('');
+}
+
+// ── Init ──
+loadSkillDB();
+loadLeague();
+</script>
+</body>
+</html>
