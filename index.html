@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Blood Bowl Game Sheets</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Oswald:wght@400;600;700&family=Rajdhani:wght@400;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-base:#0d1f07;--bg-surface:#111c0a;--bg-card:#162610;--bg-header:#0a1505;
+  --gold:#d4a93a;--gold-bright:#f0c84a;--gold-dim:#8a6e1e;--gold-glow:rgba(212,169,58,.18);
+  --green-line:#1e3d12;--text-primary:#e8e0cc;--text-secondary:#a89870;--text-dim:#5a5040;
+  --red-accent:#c0351a;--blue-accent:#1a3a8f;
+}
+body{
+  font-family:'Rajdhani',sans-serif;font-size:10pt;color:var(--text-primary);min-height:100vh;
+  background-color:var(--bg-base);
+  background-image:linear-gradient(rgba(30,61,18,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(30,61,18,.15) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ── HOME SCREEN ── */
+#home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px}
+
+.logo{text-align:center}
+.logo h1{
+  font-family:'Cinzel Decorative',serif;font-size:22pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;
+  background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.9));line-height:1.2;text-align:center;
+}
+.logo p{font-family:'Rajdhani',sans-serif;font-size:9pt;color:var(--text-secondary);letter-spacing:2px;margin-top:6px;text-transform:uppercase;font-weight:600}
+
+.warn-box{
+  background:rgba(140,110,14,.15);border:1px solid var(--gold-dim);padding:12px 16px;
+  font-size:8.5pt;line-height:1.7;max-width:740px;width:100%;border-radius:4px;
+  color:var(--text-secondary);
+}
+.warn-box strong{color:var(--gold)}
+
+.slots{display:flex;gap:16px;width:100%;max-width:740px;flex-wrap:wrap;justify-content:center}
+.slot{
+  flex:1;min-width:280px;max-width:360px;
+  background:var(--bg-card);border:1px solid var(--green-line);
+  border-radius:6px;overflow:hidden;
+  box-shadow:0 2px 16px rgba(0,0,0,.6),0 0 0 1px rgba(212,169,58,.08);
+}
+.slot-hdr{
+  display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--gold-bright);border-bottom:1px solid var(--green-line);
+  background:var(--bg-header);
+}
+.slot-hdr.a{border-left:3px solid #2080b0;color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.9),0 0 20px rgba(79,195,247,.5),0 0 40px rgba(33,150,243,.3)}
+.slot-hdr.b{border-left:3px solid var(--red-accent);color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.9),0 0 20px rgba(255,107,107,.5),0 0 40px rgba(192,53,26,.3)}
+.slot-hdr button{
+  background:none;border:1px solid var(--gold-dim);color:var(--text-secondary);
+  font-size:7.5pt;padding:2px 8px;cursor:pointer;border-radius:2px;display:none;
+  font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;transition:.15s;
+  text-shadow:none;
+}
+.slot-hdr button:hover{background:var(--gold-glow);color:var(--gold-bright);border-color:var(--gold)}
+.slot-hdr button.show{display:inline-block}
+
+.dropzone{
+  margin:12px;border:1px dashed var(--gold-dim);padding:28px 16px;text-align:center;
+  cursor:pointer;transition:.2s;border-radius:4px;background:var(--bg-surface);
+}
+.dropzone:hover,.dropzone.over{border-color:var(--gold);background:rgba(212,169,58,.06)}
+.drop-icon{font-size:26pt;display:block;margin-bottom:8px;opacity:.7}
+.drop-lbl{font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;color:var(--gold-bright)}
+.drop-hint{font-size:7.5pt;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.5px}
+
+.slot-loaded{display:none;padding:12px}
+.slot-loaded.show{display:block}
+.dropzone.hide{display:none}
+.loaded-box{
+  display:flex;align-items:center;gap:10px;padding:10px;
+  background:rgba(0,0,0,.3);border:1px solid var(--gold-dim);border-radius:3px;
+}
+.loaded-icon{font-size:18pt}
+.loaded-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:12pt;line-height:1.2;color:var(--gold-bright);letter-spacing:.5px}
+.loaded-sub{font-size:8pt;color:var(--text-secondary);margin-top:2px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.slot-err{padding:8px 14px;font-size:8pt;color:#ff8070;min-height:16px;line-height:1.6;white-space:pre-wrap;font-family:'Rajdhani',sans-serif;font-weight:600}
+input[type=file]{display:none}
+
+.gen-wrap{width:100%;max-width:740px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.btn-gen{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:13pt;text-transform:uppercase;
+  letter-spacing:3px;padding:14px 40px;cursor:pointer;transition:.15s;
+  width:100%;max-width:380px;border-radius:3px;
+  background:transparent;color:var(--gold);border:1px solid var(--gold-dim);
+}
+.btn-gen:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.btn-gen:disabled{opacity:.3;cursor:not-allowed}
+#gen-status{font-size:9pt;color:var(--text-secondary);font-weight:600;min-height:18px;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase}
+
+.howtouse{max-width:740px;width:100%;font-size:8pt;color:var(--text-dim);line-height:1.8;border-top:1px solid var(--green-line);padding-top:14px;text-align:center;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.5px}
+.howtouse a{color:var(--gold-dim);text-decoration:none}
+.howtouse a:hover{color:var(--gold)}
+
+/* ── TOOLBAR ── */
+#toolbar{
+  display:none;position:sticky;top:0;z-index:200;
+  background:var(--bg-header);color:var(--text-primary);
+  padding:10px 20px;align-items:center;gap:12px;flex-wrap:wrap;
+  border-bottom:2px solid var(--gold-dim);box-shadow:0 2px 20px rgba(0,0,0,.7);
+}
+#toolbar.show{display:flex}
+.tb-title{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;
+  letter-spacing:2px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.tb-btn{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;
+  letter-spacing:1px;padding:7px 18px;border:1px solid var(--gold-dim);
+  background:none;color:var(--gold);cursor:pointer;white-space:nowrap;transition:.15s;border-radius:3px;
+}
+.tb-btn:hover{background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+
+/* ── OUTPUT AREA (screen view) ── */
+#output{display:none}
+#output.show{display:block;padding:8px 0 40px}
+.page-label{
+  font-family:'Oswald',sans-serif;font-size:8pt;color:var(--text-dim);letter-spacing:2px;
+  text-transform:uppercase;width:190mm;margin:10mm auto 3mm;padding-bottom:3mm;
+  border-bottom:1px solid var(--green-line);
+}
+
+/* ── PRINT SHEETS (white, print-ready) ── */
+.sheet{width:190mm;margin:0 auto 8mm;background:#fff;padding:10mm;box-shadow:0 4px 24px rgba(0,0,0,.5);color:#000}
+.team-hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:3mm;margin-bottom:3mm}
+.team-name{font-family:'Oswald',sans-serif;font-size:20pt;font-weight:700;letter-spacing:1px;line-height:1;color:#000}
+.team-race{font-family:'Oswald',sans-serif;font-size:10pt;color:#333;text-transform:uppercase;letter-spacing:2px;margin-top:1mm}
+.team-meta{text-align:right;font-size:7.5pt;line-height:1.8;color:#000}
+.meta-lbl{font-weight:700;text-transform:uppercase;font-size:6.5pt;letter-spacing:.5px}
+.info-row{display:flex;gap:4mm;margin-bottom:3mm;font-size:7.5pt}
+.ibox{border:1px solid #999;padding:2mm 3mm;flex:1}
+.ibox-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:7.5pt;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #ccc;margin-bottom:1.5mm;padding-bottom:1mm;color:#000}
+.irow{display:flex;justify-content:space-between;margin-bottom:.5mm;color:#000}
+.ik{color:#444}.iv{font-weight:700;color:#000}
+.sp-rules{font-size:7pt;line-height:1.6;color:#000}
+.roster-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:1.5px;background:#000;color:#fff;padding:1.5mm 3mm}
+table.roster{width:100%;border-collapse:collapse;font-size:7pt;color:#000}
+table.roster th{font-family:'Oswald',sans-serif;font-weight:700;font-size:6.5pt;text-transform:uppercase;letter-spacing:.5px;background:#e8e8e8;border:1px solid #bbb;padding:1.5mm 2mm;text-align:center;white-space:nowrap;color:#000}
+table.roster th.l{text-align:left}
+table.roster td{border:1px solid #ccc;padding:1.5mm 2mm;vertical-align:top;line-height:1.3;color:#000}
+table.roster td.c{text-align:center;font-family:'Oswald',sans-serif;font-weight:700}
+table.roster tr:nth-child(even) td{background:#f7f7f7}
+.pos-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:7.5pt;color:#000}
+.kw-line{font-size:6.5pt;color:#555;margin-top:1.5mm;line-height:1.5}
+.skills-hdr{font-family:'Oswald',sans-serif;font-weight:700;font-size:13pt;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:2mm;color:#000}
+.skills-sub{font-size:7pt;color:#555;margin-bottom:4mm}
+.skills-list{font-size:7.5pt;line-height:1.5;columns:2;column-gap:6mm;color:#000}
+.sk{break-inside:avoid;margin-bottom:3mm}
+.sk-name{font-weight:700;font-family:'Oswald',sans-serif;font-size:8pt;letter-spacing:.3px}
+.sk-elite{font-size:6pt;font-weight:700;background:#000;color:#fff;padding:0 3px;border-radius:2px;margin-left:2px;vertical-align:middle}
+.sk-cat{font-size:6.5pt;color:#666;font-style:italic;margin-left:3px;font-family:'Rajdhani',sans-serif}
+
+@media print{
+  body{background:#fff!important;background-image:none!important}
+  #home,#toolbar,.page-label{display:none!important}
+  #output{display:block!important;padding:0}
+  .sheet{margin:0;box-shadow:none;width:100%;padding:8mm;page-break-after:always}
+  .sheet:last-child{page-break-after:avoid}
+  .skills-list{columns:2}
+}
+@media(max-width:600px){
+  .logo h1{font-size:18pt}
+  .slots{flex-direction:column}
+  .slot{min-width:100%}
+  .sheet{width:100%;margin:4px auto;padding:4mm;box-shadow:none}
+  .page-label{width:100%}
+  .info-row{flex-direction:column}
+  .skills-list{columns:1}
+  table.roster{font-size:5.5pt}
+  table.roster th{font-size:5pt}
+}
+</style>
+</head>
+<body>
+<div id="home">
+  <div class="logo">
+    <h1>Blood Bowl<br>Game Sheets</h1>
+    <p>Tourplay PDF &rarr; Print-Ready Game Sheet</p>
+  </div>
+
+  <div class="warn-box">
+    &#9888; Export from Tourplay using the <strong>Print Button</strong> on the upper right of the Team Screen: Set Printer &rarr; <strong>&ldquo;Save to PDF&rdquo;</strong>. Do <strong>NOT</strong> use &ldquo;Microsoft Print to PDF&rdquo; if an option &mdash; that creates an image file this app cannot read.
+  </div>
+
+  <div class="slots">
+    <div class="slot">
+      <div class="slot-hdr a">
+        <span>Team A</span>
+        <button id="clear-a" onclick="clearSlot('a')">&#10005; Clear</button>
+      </div>
+      <div class="dropzone" id="dz-a" ondragover="onDragOver(event,'a')" ondragleave="onDragLeave('a')" ondrop="onDrop(event,'a')" onclick="document.getElementById('fi-a').click()">
+        <span class="drop-icon">&#128196;</span>
+        <div class="drop-lbl">Drop Tourplay PDF here</div>
+        <div class="drop-hint">or tap to browse &nbsp;&middot;&nbsp; Firefox &ldquo;Save to PDF&rdquo; only</div>
+      </div>
+      <div class="slot-loaded" id="loaded-a">
+        <div class="loaded-box">
+          <span class="loaded-icon">&#9989;</span>
+          <div><div class="loaded-name" id="ln-a"></div><div class="loaded-sub" id="ls-a"></div></div>
+        </div>
+      </div>
+      <div class="slot-err" id="err-a"></div>
+      <input type="file" id="fi-a" accept=".pdf" onchange="onFileSelect(event,'a')">
+    </div>
+
+    <div class="slot">
+      <div class="slot-hdr b">
+        <span>Team B <span style="font-weight:400;font-size:9pt;opacity:.6;font-family:'Rajdhani',sans-serif">(optional)</span></span>
+        <button id="clear-b" onclick="clearSlot('b')">&#10005; Clear</button>
+      </div>
+      <div class="dropzone" id="dz-b" ondragover="onDragOver(event,'b')" ondragleave="onDragLeave('b')" ondrop="onDrop(event,'b')" onclick="document.getElementById('fi-b').click()">
+        <span class="drop-icon">&#128196;</span>
+        <div class="drop-lbl">Drop Tourplay PDF here</div>
+        <div class="drop-hint">or tap to browse &nbsp;&middot;&nbsp; Firefox &ldquo;Save to PDF&rdquo; only</div>
+      </div>
+      <div class="slot-loaded" id="loaded-b">
+        <div class="loaded-box">
+          <span class="loaded-icon">&#9989;</span>
+          <div><div class="loaded-name" id="ln-b"></div><div class="loaded-sub" id="ls-b"></div></div>
+        </div>
+      </div>
+      <div class="slot-err" id="err-b"></div>
+      <input type="file" id="fi-b" accept=".pdf" onchange="onFileSelect(event,'b')">
+    </div>
+  </div>
+
+  <div class="gen-wrap">
+    <div id="gen-status">Load at least one Tourplay PDF to begin</div>
+    <button class="btn-gen" id="btn-gen" disabled onclick="generate()">Generate Game Sheet</button>
+  </div>
+
+  <div class="howtouse">
+    Works for any race &nbsp;&middot;&nbsp; One team or two for match-day
+  </div>
+</div>
+
+<div id="toolbar">
+  <div class="tb-title" id="tb-title">BB Game Sheet</div>
+  <button class="tb-btn" onclick="window.print()">&#128424; Print</button>
+  <button class="tb-btn" onclick="goHome()">&#8617; New Sheet</button>
+</div>
+
+<div id="output"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const teams={a:null,b:null};let skillDB={};
+
+async function loadSkillDB(){
+  const URLS=['https://bbtc.pl/resources/bb2025/skills',
+    'https://corsproxy.io/?'+encodeURIComponent('https://bbtc.pl/resources/bb2025/skills'),
+    'https://api.allorigins.win/raw?url='+encodeURIComponent('https://bbtc.pl/resources/bb2025/skills')];
+  for(const url of URLS){try{const r=await fetch(url,{signal:AbortSignal.timeout(8000)});if(r.ok){skillDB=parseSkillPage(await r.text());return;}}catch(e){}}
+}
+function parseSkillPage(html){
+  const db={};const doc=new DOMParser().parseFromString(html,'text/html');
+  doc.querySelectorAll('h2').forEach(h2=>{
+    const raw=h2.textContent.trim();
+    const m=raw.match(/^(.+?)\s*\((ACTIVE|PASSIVE)(?:,\s*ELITE)?\)\s*[-\u2013]\s*(.+)$/);
+    if(!m)return;
+    const[,name,type,cat]=m;const elite=raw.includes('ELITE');
+    const parts=[];let sib=h2.nextElementSibling;
+    while(sib&&sib.tagName!=='H2'){if(sib.textContent.trim())parts.push(sib.textContent.trim());sib=sib.nextElementSibling;}
+    db[nk(name.trim())]={name:name.trim(),type,cat:cat.trim(),elite,desc:parts.join(' ').replace(/\s+/g,' ').trim()};
+  });return db;
+}
+function nk(s){return s.replace(/\*/g,'').replace(/\s*\(\d[\d+]*\)\s*/g,'').toLowerCase().replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();}
+function lookupSkill(name){const key=nk(name);if(skillDB[key])return skillDB[key];for(const[k,v]of Object.entries(skillDB))if(key.startsWith(k)||k.startsWith(key))return v;return null;}
+
+async function isImagePDF(pdf){const pg=await pdf.getPage(1);const ct=await pg.getTextContent();return ct.items.map(i=>i.str).join('').trim().length<20;}
+
+async function parseTourplayPDF(pdf){
+  const pg=await pdf.getPage(1);const ct=await pg.getTextContent();
+  const words=ct.items.filter(i=>i.str&&i.str.trim()).map(i=>({text:i.str.trim(),x0:i.transform[4],top:-i.transform[5]}));
+  words.sort((a,b)=>a.top-b.top||a.x0-b.x0);
+  const rows=[];let cr=[],cy=null;
+  for(const w of words){const y=Math.round(w.top);if(cy===null||Math.abs(y-cy)>6){if(cr.length)rows.push(cr);cr=[w];cy=y;}else cr.push(w);}
+  if(cr.length)rows.push(cr);
+  const rt=row=>row.map(w=>w.text).join(' ');
+
+  let hi=-1,SX=283,NX=464;
+  for(let i=0;i<rows.length;i++){const t=rt(rows[i]);if(t.includes('No.')&&t.includes('SKILLS')&&t.includes('TRAITS')){hi=i;const sw=rows[i].find(w=>w.text==='SKILLS');const nw=rows[i].find(w=>w.text==='NI');if(sw)SX=sw.x0;if(nw)NX=nw.x0;break;}}
+  if(hi===-1)throw new Error('IMAGE_PDF');
+  const PM=SX-120;
+
+  const dd=s=>{let o='',i=0;while(i<s.length){o+=s[i];i+=(i+1<s.length&&s[i]===s[i+1])?2:1;}return o.trim();};
+  const tt=s=>s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');
+
+  const teamName=tt(dd(rt(rows[0]||[])).replace(/^[A-Z]{1,2}\s+/,'').trim());
+  const r2=rt(rows[2]||[]);
+  const ctvM=r2.match(/([\d,]+)\s*CTV/i);const ctv=ctvM?ctvM[1]:'';
+  const race=tt(dd(r2.replace(/([\d,]+)\s*CTV\s*/i,'').trim()));
+
+  let coach='',rerolls='',dedicatedFans='',apothecary='';const specialRules=[];let inSide=false;
+  for(let i=hi+1;i<rows.length;i++){
+    const t=rt(rows[i]);
+    if(/SIDELINE/i.test(t)&&i>hi+3){inSide=true;continue;}
+    if(!inSide)continue;
+    if(/RRooookkiiee|Rookie\s*[^\w]/.test(t)&&!coach){const cw=rows[i].filter(w=>w.x0<PM+50&&!/^[·R\d]/.test(w.text)&&w.text.length>1);if(cw.length)coach=dd(cw.map(w=>w.text).join(' '));}
+    if(/Re.?rolls/i.test(t)&&!rerolls){for(const r2 of[rows[i],rows[i+1]||[]]){const n=r2.find(w=>/^\d$/.test(w.text)&&w.x0>300);if(n){rerolls=n.text;break;}}}
+    if(/Dedicated.{0,10}fans/i.test(t)){const n=rows[i].filter(w=>/^\d$/.test(w.text));if(n.length)dedicatedFans=n[n.length-1].text;}
+    if(/Apothecary\s*Yes/i.test(t))apothecary='Yes';else if(/Apothecary\s*No/i.test(t))apothecary='No';
+    if(/Necromancer\s*Yes/i.test(t))apothecary='Yes (Necromancer)';
+    for(const sr of["Brawlin' Brutes",'Badlands Brawl','Chaos Clash','Sylvanian Spotlight','Team Captain','Lustrian Superleague'])
+      if(t.toLowerCase().includes(sr.toLowerCase())&&!specialRules.includes(sr))specialRules.push(sr);
+  }
+
+  const cs=s=>s.replace(/(.)\1{2,}/g,'$1');
+  const players=[];let cur=null,pend=[];
+  for(let i=hi+1;i<rows.length;i++){
+    const row=rows[i],t=rt(row);
+    if(/SIDELINE/i.test(t)&&i>hi+3)break;
+    const pw=row.filter(w=>w.x0<PM),sw=row.filter(w=>w.x0>=PM&&w.x0<SX),kw=row.filter(w=>w.x0>=SX&&w.x0<NX);
+    const pt=pw.map(w=>w.text).join(' ').trim(),kt=kw.map(w=>w.text).join(' ').trim();
+    const pm=pt.match(/^#(\d+)\s*(.*)/);
+    if(pm){
+      if(cur)players.push(fin(cur));
+      const num=pm[1],pos=pm[2].replace(/\d{3,}.*$/,'').trim();
+      const stats=[];for(const w of sw){const c=cs(w.text);if(/^\d+\+?$/.test(c)&&stats.length<5)stats.push(c);}
+      cur={num,position:pos,stats,raw:[...pend,kt].filter(Boolean).join(' ')};pend=[];
+    }else if(/^\(/.test(pt)){
+    }else if(!pt&&kt){if(cur)cur.raw+=' '+kt;else pend.push(kt);
+    }else if(/\bMA\b.*\bST\b/.test(t)&&kt){pend.push(kt);
+    }else if(kt&&cur){cur.raw+=' '+kt;}
+  }
+  if(cur)players.push(fin(cur));
+  const usedSkills=[...new Set(players.flatMap(p=>p.skills))];
+  return{teamName,race,ctv,coach,rerolls,dedicatedFans,apothecary,specialRules,players,usedSkills};
+}
+
+function fin(p){
+  let r=p.raw;
+  r=r.replace(/[·\u2756\u2605\u2295\u2606]\s*\S*/g,'').replace(/\bx\d+\b/g,'').replace(/\b\d+\/\d+\b/g,'');
+  r=r.replace(/Insigni.cant/g,'Insignificant').replace(/\s+/g,' ').trim().replace(/^[,;]+|[,;]+$/g,'');
+  const skills=r.split(/,(?![^(]*\))/).map(s=>s.trim().replace(/^[,;.\s]+|[,;.\s]+$/g,'')).filter(s=>s.length>1&&!/^[\d·.\-*]+$/.test(s));
+  return{...p,skills,raw:undefined};
+}
+
+function onDragOver(e,s){e.preventDefault();document.getElementById('dz-'+s).classList.add('over');}
+function onDragLeave(s){document.getElementById('dz-'+s).classList.remove('over');}
+function onDrop(e,s){e.preventDefault();onDragLeave(s);const f=e.dataTransfer.files[0];if(f)handleFile(f,s);}
+function onFileSelect(e,s){if(e.target.files[0])handleFile(e.target.files[0],s);}
+
+async function handleFile(file,slot){
+  if(!file.name.toLowerCase().endsWith('.pdf')){setErr(slot,'Please select a PDF file.');return;}
+  setErr(slot,'');setStatus('Reading PDF\u2026');
+  try{
+    const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    if(await isImagePDF(pdf)){
+      setErr(slot,'\u26A0 This PDF was made with "Microsoft Print to PDF" and cannot be read.\n\nIn Firefox: Ctrl+P \u2192 Destination \u2192 "Save to PDF" (Firefox\'s option, NOT Microsoft) \u2192 Save');
+      teams[slot]=null;showLoaded(slot,null);setStatus('');updateBtn();return;
+    }
+    setStatus('Parsing roster\u2026');
+    const data=await parseTourplayPDF(pdf);data.fileName=file.name;
+    teams[slot]=data;showLoaded(slot,data);
+    setStatus(teams.a||teams.b?'Ready \u2014 click Generate Game Sheet':'');
+  }catch(err){
+    setErr(slot,err.message==='IMAGE_PDF'?'\u26A0 Roster not found. Use Firefox "Save to PDF" export.':'Parse error: '+err.message);
+    teams[slot]=null;showLoaded(slot,null);setStatus('');console.error(err);
+  }
+  updateBtn();
+}
+
+function showLoaded(slot,data){
+  const dz=document.getElementById('dz-'+slot),ld=document.getElementById('loaded-'+slot),clr=document.getElementById('clear-'+slot);
+  if(data){document.getElementById('ln-'+slot).textContent=data.teamName||'(unknown)';document.getElementById('ls-'+slot).textContent=(data.race||'')+' \u00B7 '+data.players.length+' players'+(data.ctv?' \u00B7 CTV '+data.ctv:'');dz.classList.add('hide');ld.classList.add('show');clr.classList.add('show');}
+  else{dz.classList.remove('hide');ld.classList.remove('show');clr.classList.remove('show');}
+}
+function clearSlot(slot){teams[slot]=null;document.getElementById('fi-'+slot).value='';setErr(slot,'');showLoaded(slot,null);updateBtn();}
+function updateBtn(){document.getElementById('btn-gen').disabled=!(teams.a||teams.b);}
+
+async function generate(){
+  setStatus('Loading skill database\u2026');document.getElementById('btn-gen').disabled=true;
+  if(Object.keys(skillDB).length===0)await loadSkillDB();
+  setStatus('Building sheet\u2026');
+  const output=document.getElementById('output');output.innerHTML='';
+  const active=[teams.a,teams.b].filter(Boolean);
+  document.getElementById('tb-title').textContent=active.map(t=>t.teamName||t.race||'Team').join(' vs ');
+  for(const team of active)output.innerHTML+=buildTeamHTML(team);
+  document.getElementById('home').style.display='none';
+  document.getElementById('toolbar').classList.add('show');
+  output.classList.add('show');setStatus('');
+}
+
+function buildTeamHTML(t){
+  return '<div class="page-label">Roster &mdash; '+esc(t.teamName)+'</div><div class="sheet">'+buildRosterPage(t)+'</div>'+
+    '<div class="page-label">Skills Reference &mdash; '+esc(t.teamName)+'</div><div class="sheet">'+buildSkillsPage(t)+'</div>';
+}
+
+function buildRosterPage(t){
+  const rows=t.players.map(p=>{
+    const[ma,st,ag,pa,av]=p.stats;
+    const sk=p.skills.length?p.skills.map(s=>esc(s)).join(', '):'&mdash;';
+    return '<tr><td class="c">'+esc(p.num)+'</td><td><div class="pos-name">'+esc(p.position)+'</div></td>'+
+      '<td class="c">'+esc(ma||'')+'</td><td class="c">'+esc(st||'')+'</td>'+
+      '<td class="c">'+esc(ag||'')+'</td><td class="c">'+esc(pa||'')+'</td>'+
+      '<td class="c">'+esc(av||'')+'</td><td style="font-size:6.5pt">'+sk+'</td></tr>';
+  }).join('');
+  const rrLine=t.rerolls?'<div class="irow"><span class="ik">Re-rolls</span><span class="iv">'+esc(t.rerolls)+'</span></div>':'';
+  const dfLine=t.dedicatedFans?'<div class="irow"><span class="ik">Dedicated Fans</span><span class="iv">'+esc(t.dedicatedFans)+'</span></div>':'';
+  const apoLine=t.apothecary?'<div class="irow"><span class="ik">Apothecary</span><span class="iv">'+esc(t.apothecary)+'</span></div>':'';
+  const noSide=!rrLine&&!dfLine&&!apoLine?'<div style="color:#999;font-size:7pt;font-style:italic">Not available in this export</div>':'';
+  return '<div class="team-hdr"><div><div class="team-name">'+esc(t.teamName)+'</div><div class="team-race">'+esc(t.race)+'</div></div>'+
+    '<div class="team-meta">'+(t.coach?'<div><span class="meta-lbl">Coach:</span> '+esc(t.coach)+'</div>':'')+
+    (t.ctv?'<div><span class="meta-lbl">CTV:</span> '+esc(t.ctv)+'k</div>':'')+
+    '<div><span class="meta-lbl">Ruleset:</span> BB2025</div></div></div>'+
+    '<div class="info-row">'+
+      '<div class="ibox"><div class="ibox-title">Sideline Staff</div>'+apoLine+rrLine+dfLine+noSide+'</div>'+
+      '<div class="ibox"><div class="ibox-title">Leagues &amp; Special Rules</div><div class="sp-rules">'+
+        (t.specialRules.length?t.specialRules.map(r=>'&bull; '+esc(r)).join('<br>'):'<em style="color:#888">None listed</em>')+
+      '</div></div>'+
+      '<div class="ibox"><div class="ibox-title">Squad</div>'+
+        '<div class="irow"><span class="ik">Players</span><span class="iv">'+t.players.length+'</span></div>'+
+        (t.ctv?'<div class="irow"><span class="ik">CTV</span><span class="iv">'+esc(t.ctv)+'k</span></div>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="roster-title">Players</div>'+
+    '<table class="roster"><thead><tr><th>#</th><th class="l">Position</th>'+
+      '<th>MA</th><th>ST</th><th>AG</th><th>PA</th><th>AV</th><th class="l">Skills &amp; Traits</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '<div class="kw-line"><strong>*</strong> = Must always use when applicable</div>';
+}
+
+function buildSkillsPage(t){
+  const sorted=[...new Set(t.usedSkills)].sort((a,b)=>nk(a).localeCompare(nk(b)));
+  const items=sorted.map(name=>{
+    const info=lookupSkill(name);
+    if(!info)return '<div class="sk"><span class="sk-name">'+esc(name)+':</span> <em style="color:#999">See rulebook</em></div>';
+    const elite=info.elite?'<span class="sk-elite">ELITE</span>':'';
+    const cat='<span class="sk-cat">'+esc(info.type)+' &middot; '+esc(info.cat)+'</span>';
+    return '<div class="sk"><span class="sk-name">'+esc(info.name)+elite+'</span>'+cat+'<br>'+esc(info.desc)+'</div>';
+  }).join('');
+  return '<div class="skills-hdr">'+esc(t.teamName)+' &ndash; Skills &amp; Traits</div>'+
+    '<div class="skills-sub">'+esc(t.race)+' &nbsp;&middot;&nbsp; All skills used by this roster &nbsp;&middot;&nbsp; '+
+    '<span class="sk-elite">ELITE</span> = costs extra SPP &nbsp;&middot;&nbsp; * = must always use</div>'+
+    '<div class="skills-list">'+(items||'<em style="color:#999">No skills found</em>')+'</div>';
+}
+
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setStatus(msg){document.getElementById('gen-status').textContent=msg;}
+function setErr(slot,msg){document.getElementById('err-'+slot).textContent=msg;}
+function goHome(){
+  document.getElementById('home').style.display='flex';
+  document.getElementById('toolbar').classList.remove('show');
+  document.getElementById('output').classList.remove('show');
+  document.getElementById('output').innerHTML='';
+  document.getElementById('btn-gen').disabled=!(teams.a||teams.b);
+  setStatus(teams.a||teams.b?'Ready \u2014 click Generate Game Sheet':'Load at least one Tourplay PDF to begin');
+}
+loadSkillDB();
+</script>
+</body>
+</html>
