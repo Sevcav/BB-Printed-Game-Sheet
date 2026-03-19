@@ -75,13 +75,24 @@ text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
 .team-select-wrap.a label{color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.6)}
 .team-select-wrap.b label{color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.6)}
 .team-select{
-width:100%;background:rgba(0,0,0,.4);border:1px solid var(–gold-dim);
-border-radius:3px;padding:8px 10px;color:var(–text-primary);
-font-family:‘Rajdhani’,sans-serif;font-size:10pt;font-weight:600;
-cursor:pointer;transition:.15s;outline:none;
+width:100%;
+background:#1e2e14;
+border:1px solid var(–gold-dim);
+border-radius:3px;
+padding:10px 12px;
+color:#e8e0cc;
+font-family:‘Rajdhani’,sans-serif;
+font-size:16px;  /* 16px prevents iOS auto-zoom */
+font-weight:600;
+cursor:pointer;
+outline:none;
+/* Ensure text is always visible */
+-webkit-text-fill-color:#e8e0cc;
+appearance:none;
+-webkit-appearance:none;
 }
-.team-select:focus{border-color:var(–gold)}
-.team-select option{background:#1a2e10;color:var(–text-primary)}
+.team-select:focus{border-color:var(–gold);outline:none}
+.team-select option{background:#1e2e14;color:#e8e0cc}
 
 .vs-badge{
 font-family:‘Cinzel’,serif;font-weight:700;font-size:14pt;
