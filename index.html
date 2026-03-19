@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -25,23 +26,23 @@ body{
 #home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px}
 .logo{text-align:center}
 .logo h1{
-  font-family:'Cinzel Decorative',serif;font-size:22pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;
-  background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 2px 8px rgba(0,0,0,.9));line-height:1.2;text-align:center;
+font-family:‘Cinzel Decorative’,serif;font-size:22pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;
+background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+filter:drop-shadow(0 2px 8px rgba(0,0,0,.9));line-height:1.2;text-align:center;
 }
-.logo p{font-family:'Rajdhani',sans-serif;font-size:9pt;color:var(--text-secondary);letter-spacing:2px;margin-top:6px;text-transform:uppercase;font-weight:600}
+.logo p{font-family:‘Rajdhani’,sans-serif;font-size:9pt;color:var(–text-secondary);letter-spacing:2px;margin-top:6px;text-transform:uppercase;font-weight:600}
 
 /* ── MODE TABS ── */
-.mode-tabs{display:flex;gap:0;width:100%;max-width:740px;border:1px solid var(--gold-dim);border-radius:4px;overflow:hidden}
+.mode-tabs{display:flex;gap:0;width:100%;max-width:740px;border:1px solid var(–gold-dim);border-radius:4px;overflow:hidden}
 .mode-tab{
-  flex:1;padding:10px 16px;text-align:center;cursor:pointer;transition:.2s;
-  font-family:'Oswald',sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;letter-spacing:1.5px;
-  background:var(--bg-surface);color:var(--text-dim);border:none;
+flex:1;padding:10px 16px;text-align:center;cursor:pointer;transition:.2s;
+font-family:‘Oswald’,sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;letter-spacing:1.5px;
+background:var(–bg-surface);color:var(–text-dim);border:none;
 }
-.mode-tab:not(:last-child){border-right:1px solid var(--gold-dim)}
-.mode-tab.active{background:var(--gold-glow);color:var(--gold-bright)}
-.mode-tab:hover:not(.active){background:rgba(212,169,58,.06);color:var(--text-secondary)}
+.mode-tab:not(:last-child){border-right:1px solid var(–gold-dim)}
+.mode-tab.active{background:var(–gold-glow);color:var(–gold-bright)}
+.mode-tab:hover:not(.active){background:rgba(212,169,58,.06);color:var(–text-secondary)}
 .mode-tab .tab-icon{font-size:12pt;display:block;margin-bottom:2px}
 .mode-tab .tab-lbl{font-size:9pt}
 
@@ -49,116 +50,116 @@ body{
 #live-mode,#pdf-mode{display:none;width:100%;max-width:740px;flex-direction:column;gap:14px}
 #live-mode.active,#pdf-mode.active{display:flex}
 
-.live-card{background:var(--bg-card);border:1px solid var(--green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
+.live-card{background:var(–bg-card);border:1px solid var(–green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
 .live-card-hdr{
-  padding:10px 16px;background:var(--bg-header);border-bottom:1px solid var(--green-line);
-  font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;
-  letter-spacing:1.5px;color:var(--gold-bright);display:flex;align-items:center;gap:8px;
+padding:10px 16px;background:var(–bg-header);border-bottom:1px solid var(–green-line);
+font-family:‘Oswald’,sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;
+letter-spacing:1.5px;color:var(–gold-bright);display:flex;align-items:center;gap:8px;
 }
-.live-card-hdr .status-dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);flex-shrink:0;transition:.3s}
+.live-card-hdr .status-dot{width:8px;height:8px;border-radius:50%;background:var(–text-dim);flex-shrink:0;transition:.3s}
 .live-card-hdr .status-dot.loading{background:#f0c84a;animation:pulse 1s infinite}
 .live-card-hdr .status-dot.ok{background:#40c050}
-.live-card-hdr .status-dot.err{background:var(--red-accent)}
+.live-card-hdr .status-dot.err{background:var(–red-accent)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 .live-card-body{padding:14px 16px}
-.league-status{font-size:8.5pt;color:var(--text-secondary);margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.league-status{font-size:8.5pt;color:var(–text-secondary);margin-bottom:12px;font-family:‘Rajdhani’,sans-serif;font-weight:600}
 
 /* Matchup selector */
 .matchup-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .team-select-wrap{flex:1;min-width:200px}
 .team-select-wrap label{
-  display:block;font-family:'Oswald',sans-serif;font-weight:700;font-size:8pt;
-  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+display:block;font-family:‘Oswald’,sans-serif;font-weight:700;font-size:8pt;
+text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
 }
 .team-select-wrap.a label{color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.6)}
 .team-select-wrap.b label{color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.6)}
 .team-select{
-  width:100%;background:rgba(0,0,0,.4);border:1px solid var(--gold-dim);
-  border-radius:3px;padding:8px 10px;color:var(--text-primary);
-  font-family:'Rajdhani',sans-serif;font-size:10pt;font-weight:600;
-  cursor:pointer;transition:.15s;outline:none;
+width:100%;background:rgba(0,0,0,.4);border:1px solid var(–gold-dim);
+border-radius:3px;padding:8px 10px;color:var(–text-primary);
+font-family:‘Rajdhani’,sans-serif;font-size:10pt;font-weight:600;
+cursor:pointer;transition:.15s;outline:none;
 }
-.team-select:focus{border-color:var(--gold)}
-.team-select option{background:#1a2e10;color:var(--text-primary)}
+.team-select:focus{border-color:var(–gold)}
+.team-select option{background:#1a2e10;color:var(–text-primary)}
 
 .vs-badge{
-  font-family:'Cinzel',serif;font-weight:700;font-size:14pt;
-  color:var(--text-dim);letter-spacing:2px;padding:0 4px;flex-shrink:0;margin-top:18px;
+font-family:‘Cinzel’,serif;font-weight:700;font-size:14pt;
+color:var(–text-dim);letter-spacing:2px;padding:0 4px;flex-shrink:0;margin-top:18px;
 }
 
 .fetch-btn{
-  font-family:'Oswald',sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;
-  letter-spacing:1.5px;padding:10px 24px;cursor:pointer;transition:.15s;
-  border-radius:3px;background:transparent;color:var(--gold);border:1px solid var(--gold-dim);
-  width:100%;margin-top:12px;
+font-family:‘Oswald’,sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;
+letter-spacing:1.5px;padding:10px 24px;cursor:pointer;transition:.15s;
+border-radius:3px;background:transparent;color:var(–gold);border:1px solid var(–gold-dim);
+width:100%;margin-top:12px;
 }
-.fetch-btn:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.fetch-btn:hover:not(:disabled){background:var(–gold-glow);border-color:var(–gold);color:var(–gold-bright)}
 .fetch-btn:disabled{opacity:.3;cursor:not-allowed}
 
-.live-err{font-size:8pt;color:#ff8070;margin-top:8px;font-family:'Rajdhani',sans-serif;font-weight:600;line-height:1.6;white-space:pre-wrap}
-.live-ok{font-size:8pt;color:#70d070;margin-top:8px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.live-err{font-size:8pt;color:#ff8070;margin-top:8px;font-family:‘Rajdhani’,sans-serif;font-weight:600;line-height:1.6;white-space:pre-wrap}
+.live-ok{font-size:8pt;color:#70d070;margin-top:8px;font-family:‘Rajdhani’,sans-serif;font-weight:600}
 
 /* ── PDF MODE ── */
 .warn-box{
-  background:rgba(140,110,14,.15);border:1px solid var(--gold-dim);padding:12px 16px;
-  font-size:8.5pt;line-height:1.7;border-radius:4px;color:var(--text-secondary);
+background:rgba(140,110,14,.15);border:1px solid var(–gold-dim);padding:12px 16px;
+font-size:8.5pt;line-height:1.7;border-radius:4px;color:var(–text-secondary);
 }
-.warn-box strong{color:var(--gold)}
+.warn-box strong{color:var(–gold)}
 .slots{display:flex;gap:16px;width:100%;flex-wrap:wrap;justify-content:center}
-.slot{flex:1;min-width:280px;max-width:360px;background:var(--bg-card);border:1px solid var(--green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
-.slot-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;background:var(--bg-header);border-bottom:1px solid var(--green-line)}
-.slot-hdr.a{border-left:3px solid var(--blue-accent);color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.9),0 0 20px rgba(79,195,247,.5)}
-.slot-hdr.b{border-left:3px solid var(--red-accent);color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.9),0 0 20px rgba(255,107,107,.5)}
-.slot-hdr button{background:none;border:1px solid var(--gold-dim);color:var(--text-secondary);font-size:7.5pt;padding:2px 8px;cursor:pointer;border-radius:2px;display:none;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;transition:.15s;text-shadow:none}
-.slot-hdr button:hover{background:var(--gold-glow);color:var(--gold-bright);border-color:var(--gold)}
+.slot{flex:1;min-width:280px;max-width:360px;background:var(–bg-card);border:1px solid var(–green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
+.slot-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-family:‘Oswald’,sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;background:var(–bg-header);border-bottom:1px solid var(–green-line)}
+.slot-hdr.a{border-left:3px solid var(–blue-accent);color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.9),0 0 20px rgba(79,195,247,.5)}
+.slot-hdr.b{border-left:3px solid var(–red-accent);color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.9),0 0 20px rgba(255,107,107,.5)}
+.slot-hdr button{background:none;border:1px solid var(–gold-dim);color:var(–text-secondary);font-size:7.5pt;padding:2px 8px;cursor:pointer;border-radius:2px;display:none;font-family:‘Oswald’,sans-serif;font-weight:700;letter-spacing:1px;transition:.15s;text-shadow:none}
+.slot-hdr button:hover{background:var(–gold-glow);color:var(–gold-bright);border-color:var(–gold)}
 .slot-hdr button.show{display:inline-block}
-.dropzone{margin:12px;border:1px dashed var(--gold-dim);padding:28px 16px;text-align:center;cursor:pointer;transition:.2s;border-radius:4px;background:var(--bg-surface)}
-.dropzone:hover,.dropzone.over{border-color:var(--gold);background:rgba(212,169,58,.06)}
+.dropzone{margin:12px;border:1px dashed var(–gold-dim);padding:28px 16px;text-align:center;cursor:pointer;transition:.2s;border-radius:4px;background:var(–bg-surface)}
+.dropzone:hover,.dropzone.over{border-color:var(–gold);background:rgba(212,169,58,.06)}
 .drop-icon{font-size:26pt;display:block;margin-bottom:8px;opacity:.7}
-.drop-lbl{font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;color:var(--gold-bright)}
-.drop-hint{font-size:7.5pt;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600}
+.drop-lbl{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;color:var(–gold-bright)}
+.drop-hint{font-size:7.5pt;color:var(–text-dim);font-family:‘Rajdhani’,sans-serif;font-weight:600}
 .slot-loaded{display:none;padding:12px}
 .slot-loaded.show{display:block}
 .dropzone.hide{display:none}
-.loaded-box{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,0,0,.3);border:1px solid var(--gold-dim);border-radius:3px}
+.loaded-box{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,0,0,.3);border:1px solid var(–gold-dim);border-radius:3px}
 .loaded-icon{font-size:18pt}
-.loaded-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:12pt;line-height:1.2;color:var(--gold-bright);letter-spacing:.5px}
-.loaded-sub{font-size:8pt;color:var(--text-secondary);margin-top:2px;font-family:'Rajdhani',sans-serif;font-weight:600}
-.slot-err{padding:8px 14px;font-size:8pt;color:#ff8070;min-height:16px;line-height:1.6;white-space:pre-wrap;font-family:'Rajdhani',sans-serif;font-weight:600}
+.loaded-name{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:12pt;line-height:1.2;color:var(–gold-bright);letter-spacing:.5px}
+.loaded-sub{font-size:8pt;color:var(–text-secondary);margin-top:2px;font-family:‘Rajdhani’,sans-serif;font-weight:600}
+.slot-err{padding:8px 14px;font-size:8pt;color:#ff8070;min-height:16px;line-height:1.6;white-space:pre-wrap;font-family:‘Rajdhani’,sans-serif;font-weight:600}
 input[type=file]{display:none}
 
 /* ── SHARED BOTTOM ── */
 .gen-wrap{width:100%;max-width:740px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
-.btn-gen{font-family:'Oswald',sans-serif;font-weight:700;font-size:13pt;text-transform:uppercase;letter-spacing:3px;padding:14px 40px;cursor:pointer;transition:.15s;width:100%;max-width:380px;border-radius:3px;background:transparent;color:var(--gold);border:1px solid var(--gold-dim)}
-.btn-gen:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.btn-gen{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:13pt;text-transform:uppercase;letter-spacing:3px;padding:14px 40px;cursor:pointer;transition:.15s;width:100%;max-width:380px;border-radius:3px;background:transparent;color:var(–gold);border:1px solid var(–gold-dim)}
+.btn-gen:hover:not(:disabled){background:var(–gold-glow);border-color:var(–gold);color:var(–gold-bright)}
 .btn-gen:disabled{opacity:.3;cursor:not-allowed}
-#gen-status{font-size:9pt;color:var(--text-secondary);font-weight:600;min-height:18px;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase}
-.howtouse{max-width:740px;width:100%;font-size:8pt;color:var(--text-dim);line-height:1.8;border-top:1px solid var(--green-line);padding-top:14px;text-align:center;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.5px}
-.howtouse a{color:var(--gold-dim);text-decoration:none}
-.howtouse a:hover{color:var(--gold)}
-.caution-note{max-width:740px;width:100%;font-size:8pt;line-height:1.7;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.3px;background:rgba(192,53,26,.12);border:1px solid rgba(192,53,26,.4);border-left:3px solid var(--red-accent);padding:10px 14px;border-radius:3px;color:#ffaa90}
+#gen-status{font-size:9pt;color:var(–text-secondary);font-weight:600;min-height:18px;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;text-transform:uppercase}
+.howtouse{max-width:740px;width:100%;font-size:8pt;color:var(–text-dim);line-height:1.8;border-top:1px solid var(–green-line);padding-top:14px;text-align:center;font-family:‘Rajdhani’,sans-serif;font-weight:600;letter-spacing:.5px}
+.howtouse a{color:var(–gold-dim);text-decoration:none}
+.howtouse a:hover{color:var(–gold)}
+.caution-note{max-width:740px;width:100%;font-size:8pt;line-height:1.7;font-family:‘Rajdhani’,sans-serif;font-weight:600;letter-spacing:.3px;background:rgba(192,53,26,.12);border:1px solid rgba(192,53,26,.4);border-left:3px solid var(–red-accent);padding:10px 14px;border-radius:3px;color:#ffaa90}
 .caution-note strong{color:#ff8070}
 
 /* ── TOOLBAR ── */
-#toolbar{display:none;position:sticky;top:0;z-index:200;background:var(--bg-header);color:var(--text-primary);padding:10px 20px;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--gold-dim);box-shadow:0 2px 20px rgba(0,0,0,.7)}
+#toolbar{display:none;position:sticky;top:0;z-index:200;background:var(–bg-header);color:var(–text-primary);padding:10px 20px;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(–gold-dim);box-shadow:0 2px 20px rgba(0,0,0,.7)}
 #toolbar.show{display:flex}
-.tb-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:2px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.tb-btn{font-family:'Oswald',sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:1px;padding:7px 18px;border:1px solid var(--gold-dim);background:none;color:var(--gold);cursor:pointer;white-space:nowrap;transition:.15s;border-radius:3px}
-.tb-btn:hover{background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.tb-title{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:2px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tb-btn{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:1px;padding:7px 18px;border:1px solid var(–gold-dim);background:none;color:var(–gold);cursor:pointer;white-space:nowrap;transition:.15s;border-radius:3px}
+.tb-btn:hover{background:var(–gold-glow);border-color:var(–gold);color:var(–gold-bright)}
 
 /* ── OUTPUT ── */
 #output{display:none}
 #output.show{display:block;padding:8px 0 40px}
-.page-label{font-family:'Oswald',sans-serif;font-size:8pt;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;width:190mm;margin:10mm auto 3mm;padding-bottom:3mm;border-bottom:1px solid var(--green-line)}
+.page-label{font-family:‘Oswald’,sans-serif;font-size:8pt;color:var(–text-dim);letter-spacing:2px;text-transform:uppercase;width:190mm;margin:10mm auto 3mm;padding-bottom:3mm;border-bottom:1px solid var(–green-line)}
 .sheet{width:190mm;margin:0 auto 6mm;background:#fff;padding:8mm 10mm;box-shadow:0 4px 24px rgba(0,0,0,.5);color:#000}
 .sheet-roster{padding:8mm 10mm}
 .sheet-skills{padding:8mm 10mm}
 
 /* ── ROSTER PAGE — tight, fits 16 players ── */
 .team-hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:2mm}
-.team-name{font-family:'Oswald',sans-serif;font-size:18pt;font-weight:700;letter-spacing:1px;line-height:1;color:#000}
-.team-race{font-family:'Oswald',sans-serif;font-size:8.5pt;color:#333;text-transform:uppercase;letter-spacing:2px;margin-top:1mm}
+.team-name{font-family:‘Oswald’,sans-serif;font-size:18pt;font-weight:700;letter-spacing:1px;line-height:1;color:#000}
+.team-race{font-family:‘Oswald’,sans-serif;font-size:8.5pt;color:#333;text-transform:uppercase;letter-spacing:2px;margin-top:1mm}
 .team-meta{text-align:right;font-size:6.5pt;line-height:1.7;color:#000}
 .meta-lbl{font-weight:700;text-transform:uppercase;font-size:5.5pt;letter-spacing:.5px}
 
@@ -167,18 +168,18 @@ input[type=file]{display:none}
 .side-item{display:flex;flex-direction:column;padding:1mm 2.5mm;border-right:1px solid #ccc;min-width:16mm}
 .side-item:last-child{border-right:none;flex:1}
 .side-rules{flex:2}
-.side-k{font-family:'Oswald',sans-serif;font-weight:700;font-size:5.5pt;text-transform:uppercase;letter-spacing:.3px;color:#555}
+.side-k{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:5.5pt;text-transform:uppercase;letter-spacing:.3px;color:#555}
 .side-v{font-weight:700;font-size:7.5pt;color:#000;line-height:1.3}
 
 /* Roster table */
-.roster-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:7.5pt;text-transform:uppercase;letter-spacing:1.5px;background:#000;color:#fff;padding:1mm 2.5mm;margin-bottom:0}
+.roster-title{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:7.5pt;text-transform:uppercase;letter-spacing:1.5px;background:#000;color:#fff;padding:1mm 2.5mm;margin-bottom:0}
 table.roster{width:100%;border-collapse:collapse;font-size:6pt;color:#000}
-table.roster th{font-family:'Oswald',sans-serif;font-weight:700;font-size:5.5pt;text-transform:uppercase;letter-spacing:.2px;background:#e0e0e0;border:1px solid #bbb;padding:.8mm 1.5mm;text-align:center;white-space:nowrap;color:#000}
+table.roster th{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:5.5pt;text-transform:uppercase;letter-spacing:.2px;background:#e0e0e0;border:1px solid #bbb;padding:.8mm 1.5mm;text-align:center;white-space:nowrap;color:#000}
 table.roster th.l{text-align:left}
 table.roster td{border:1px solid #ddd;padding:.7mm 1.5mm;vertical-align:middle;line-height:1.2;color:#000}
-table.roster td.c{text-align:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:6.5pt}
+table.roster td.c{text-align:center;font-family:‘Oswald’,sans-serif;font-weight:700;font-size:6.5pt}
 table.roster tr:nth-child(even) td{background:#f8f8f8}
-.pos-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:6.5pt;color:#000}
+.pos-name{font-family:‘Oswald’,sans-serif;font-weight:700;font-size:6.5pt;color:#000}
 .sk-cell{font-size:5.5pt;line-height:1.35}
 .kw-line{font-size:5pt;color:#777;margin-top:1.5mm}
 .plr-name{font-size:5.5pt;color:#777;font-style:italic;margin-left:3px}
@@ -196,42 +197,43 @@ tr.row-miss td{opacity:.5}
 
 /* ── SKILLS PAGE — flows to as many pages as needed ── */
 .skills-page-hdr{border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:3mm}
-.skills-team-name{font-family:'Oswald',sans-serif;font-size:16pt;font-weight:700;letter-spacing:1px;color:#000}
+.skills-team-name{font-family:‘Oswald’,sans-serif;font-size:16pt;font-weight:700;letter-spacing:1px;color:#000}
 .skills-team-sub{font-size:6.5pt;color:#555;margin-top:1mm}
 .skills-list{font-size:6.5pt;line-height:1.5;columns:2;column-gap:6mm;color:#000}
 .sk{break-inside:avoid;margin-bottom:3mm;padding-bottom:2mm;border-bottom:1px solid #eee}
 .sk:last-child{border-bottom:none}
-.sk-name{font-weight:700;font-family:'Oswald',sans-serif;font-size:7.5pt;letter-spacing:.2px}
+.sk-name{font-weight:700;font-family:‘Oswald’,sans-serif;font-size:7.5pt;letter-spacing:.2px}
 .sk-type{font-size:6pt;color:#555;font-style:italic}
 .sk-elite{font-size:5.5pt;font-weight:700;background:#000;color:#fff;padding:0 3px;border-radius:1px;margin-left:1px;vertical-align:middle}
-.sk-cat{font-size:5.5pt;color:#666;font-style:italic;margin-left:2px;font-family:'Rajdhani',sans-serif}
+.sk-cat{font-size:5.5pt;color:#666;font-style:italic;margin-left:2px;font-family:‘Rajdhani’,sans-serif}
 
 @media print{
-  body{background:#fff!important;background-image:none!important}
-  #home,#toolbar,.page-label{display:none!important}
-  #output{display:block!important;padding:0}
-  .sheet{margin:0;box-shadow:none;width:100%;page-break-after:always}
-  .sheet-roster{padding:8mm 10mm}
-  .sheet-skills{padding:8mm 10mm;page-break-after:always}
-  .sheet:last-child,.sheet-skills:last-child{page-break-after:avoid}
-  .skills-list{columns:2}
-  table.roster td{padding:.5mm 1.5mm}
-  table.roster th{padding:.5mm 1.5mm}
+body{background:#fff!important;background-image:none!important}
+#home,#toolbar,.page-label{display:none!important}
+#output{display:block!important;padding:0}
+.sheet{margin:0;box-shadow:none;width:100%;page-break-after:always}
+.sheet-roster{padding:8mm 10mm}
+.sheet-skills{padding:8mm 10mm;page-break-after:always}
+.sheet:last-child,.sheet-skills:last-child{page-break-after:avoid}
+.skills-list{columns:2}
+table.roster td{padding:.5mm 1.5mm}
+table.roster th{padding:.5mm 1.5mm}
 }
 @media(max-width:600px){
-  .logo h1{font-size:17pt}
-  .slots{flex-direction:column}
-  .slot{min-width:100%}
-  .sheet{width:100%;margin:4px auto;padding:4mm;box-shadow:none}
-  .page-label{width:100%}
-  .info-row{flex-direction:column}
-  .skills-list{columns:1}
-  table.roster{font-size:5.5pt}
-  table.roster th{font-size:5pt}
-  .matchup-row{flex-direction:column}
-  .vs-badge{margin-top:0}
+.logo h1{font-size:17pt}
+.slots{flex-direction:column}
+.slot{min-width:100%}
+.sheet{width:100%;margin:4px auto;padding:4mm;box-shadow:none}
+.page-label{width:100%}
+.info-row{flex-direction:column}
+.skills-list{columns:1}
+table.roster{font-size:5.5pt}
+table.roster th{font-size:5pt}
+.matchup-row{flex-direction:column}
+.vs-badge{margin-top:0}
 }
 </style>
+
 </head>
 <body>
 
@@ -242,6 +244,7 @@ tr.row-miss td{opacity:.5}
   </div>
 
   <!-- MODE TABS -->
+
   <div class="mode-tabs">
     <button class="mode-tab active" id="tab-live" onclick="switchMode('live')">
       <span class="tab-icon">&#127760;</span>
@@ -254,6 +257,7 @@ tr.row-miss td{opacity:.5}
   </div>
 
   <!-- LIVE MODE -->
+
   <div id="live-mode" class="active">
     <div class="live-card">
       <div class="live-card-hdr">
@@ -263,32 +267,36 @@ tr.row-miss td{opacity:.5}
       <div class="live-card-body">
         <div class="league-status" id="league-status">Connecting to Tourplay&hellip;</div>
 
-        <div class="matchup-row">
-          <div class="team-select-wrap a">
-            <label>&#9632; Team A</label>
-            <select class="team-select" id="sel-a" onchange="onSelectChange()">
-              <option value="">— Loading teams —</option>
-            </select>
-          </div>
-          <div class="vs-badge">VS</div>
-          <div class="team-select-wrap b">
-            <label>&#9632; Team B</label>
-            <select class="team-select" id="sel-b" onchange="onSelectChange()">
-              <option value="">— Loading teams —</option>
-            </select>
-          </div>
-        </div>
-
-        <button class="fetch-btn" id="fetch-btn" disabled onclick="fetchSelectedTeams()">
-          &#8987; Fetch Rosters &amp; Generate Sheet
-        </button>
-        <div class="live-err" id="live-err"></div>
-        <div class="live-ok" id="live-ok"></div>
+```
+    <div class="matchup-row">
+      <div class="team-select-wrap a">
+        <label>&#9632; Team A</label>
+        <select class="team-select" id="sel-a" onchange="onSelectChange()">
+          <option value="">— Loading teams —</option>
+        </select>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="team-select-wrap b">
+        <label>&#9632; Team B</label>
+        <select class="team-select" id="sel-b" onchange="onSelectChange()">
+          <option value="">— Loading teams —</option>
+        </select>
       </div>
     </div>
+
+    <button class="fetch-btn" id="fetch-btn" disabled onclick="fetchSelectedTeams()">
+      &#8987; Fetch Rosters &amp; Generate Sheet
+    </button>
+    <div class="live-err" id="live-err"></div>
+    <div class="live-ok" id="live-ok"></div>
+  </div>
+</div>
+```
+
   </div>
 
   <!-- PDF MODE -->
+
   <div id="pdf-mode">
     <div class="warn-box">
       &#9888; Export from Tourplay using the <strong>Print Button</strong> on the upper right of the Team Screen: Set Printer &rarr; <strong>&ldquo;Save to PDF&rdquo;</strong>. Do <strong>NOT</strong> use &ldquo;Microsoft Print to PDF&rdquo; if an option &mdash; that creates an image file this app cannot read.
@@ -320,6 +328,7 @@ tr.row-miss td{opacity:.5}
   </div>
 
   <!-- SHARED GENERATE -->
+
   <div class="gen-wrap" id="pdf-gen-wrap" style="display:none;width:100%;max-width:740px;text-align:center;flex-direction:column;align-items:center;gap:10px">
     <div id="gen-status">Load at least one Tourplay PDF to begin</div>
     <button class="btn-gen" id="btn-gen" disabled onclick="generateFromPDF()">Generate Game Sheet</button>
@@ -335,7 +344,7 @@ tr.row-miss td{opacity:.5}
 
 <div id="toolbar">
   <div class="tb-title" id="tb-title">BB Game Sheet</div>
-  <button class="tb-btn" onclick="window.print()">&#128424; Print</button>
+  <button class="tb-btn" onclick="printSheet()">&#128424; Print</button>
   <button class="tb-btn" onclick="goHome()">&#8617; New Sheet</button>
 </div>
 
@@ -457,11 +466,55 @@ async function loadKeywords() {
 // e.g. "112" -> "Human", "4+" stays "4+", "Orc" stays "Orc"
 function resolveAttr(attr) {
   if (!attr) return '';
-  // If it's already text (not purely numeric), return as-is
-  if (!/^\d+$/.test(attr)) return attr;
-  // It's a numeric ID — look up keyword name
+  if (!/^\d+$/.test(attr)) return attr;  // already text
   const id = parseInt(attr);
-  return KEYWORD_MAP[id] || attr;  // fall back to raw number if unknown
+  return KEYWORD_MAP[id] || attr;  // fallback to raw number if unknown
+}
+
+// Self-build keyword map from roster's lineUpMasters position names
+// e.g. "Goblin Lineman" + race:[101] -> KEYWORD_MAP[101] = "Goblin"
+function enrichKeywordMapFromRoster(data) {
+  const masters = data.rosterMaster?.lineUpMasters || [];
+  // Position type suffixes to strip to get the race keyword
+  const SUFFIXES = [
+    'Big Un Blocker','Blocker','Blitzer','Thrower','Runner','Lineman','Catcher',
+    'Kicker','Assassin','Witch Elf','Rotter','Wight','Ghoul','Zombie','Flesh Golem',
+    'Werewolf','Skeleton','Mummy','Zombie','Wight','Guard','Marauder',
+    'Beastman','Chaos Warrior','Minotaur','Troll','Ogre','Treeman',
+    'Rat Ogre','Gutter Runner','Storm Vermin','Thrall','Vampire',
+    'Saurus','Skink','Kroxigor','Pump Wagon','Trained Troll',
+    'Fungus Flinga','Stilty Runna','Fun Hoppa','Hoppa',
+    'Halfling Hopeful','Halfling Treeman','Master Chef',
+    'Dwarf Blocker','Deathroller','Troll Slayer',
+    'Pit Fighter','Naggaroth Nighthawk','Elven Catcher','Elven Blitzer',
+    'Elven Thrower','Elven Lineman','Palace Guard','Noble','Bodyguard',
+  ].sort((a,b) => b.length - a.length);  // longest first for greedy match
+
+  for (const master of masters) {
+    const ids   = master.race || [];
+    let   pos   = (master.position || '').trim();
+    if (!pos || !ids.length) continue;
+
+    // Strip known suffix to extract race keyword
+    let keyword = pos;
+    for (const suffix of SUFFIXES) {
+      if (pos.endsWith(suffix)) {
+        keyword = pos.slice(0, pos.length - suffix.length).trim();
+        break;
+      }
+      // Also try if suffix IS the whole position (e.g. "Vampire", "Ogre")
+      if (pos === suffix) { keyword = pos; break; }
+    }
+    if (!keyword) keyword = pos;
+
+    // Map each race ID to this keyword
+    for (const id of ids) {
+      if (!KEYWORD_MAP[id] && keyword) {
+        KEYWORD_MAP[id] = keyword;
+        console.log(`Learned keyword: ${id} = "${keyword}" from position "${pos}"`);
+      }
+    }
+  }
 }
 
 // ── State ──
@@ -606,7 +659,8 @@ async function fetchSelectedTeams() {
     setStatus(`Fetching roster ${id}\u2026`);
     try {
       const data = await tourplayFetch(`${TOURPLAY_BASE}/api/rosters/${id}`);
-      console.log(`Roster ${id}:`, data);
+      // Self-build keyword map from this roster's position data
+      enrichKeywordMapFromRoster(data);
       // Inject coach name from our league team list since roster API doesn't include it
       const leagueEntry = leagueTeams.find(t => t.id === id);
       if (leagueEntry && !data.player) data._coach = leagueEntry.coach;
@@ -645,7 +699,17 @@ function parseTourplayAPI(data, rosterId) {
   const apothecary  = data.apothecary === true ? 'Yes'
                     : data.necromancer === true ? 'Yes (Necromancer)'
                     : data.apothecary === false ? 'No' : '';
-  const ctv = data.ctv ? String(data.ctv) : '';
+  // Calculate CTV from roster components
+  const playersCost = (data.lineUps || []).reduce((sum, p) => sum + (p.cost || 0), 0);
+  const rerollCost  = data.rosterMaster?.prizeReRoll || 100000;
+  const ctvRaw = playersCost
+    + ((data.reRolls || 0) * rerollCost)
+    + ((data.assistantCoaches || 0) * 10000)
+    + ((data.cheerLeaders || 0) * 10000)
+    + ((data.fanFactor || 0) * 10000)
+    + (data.apothecary  ? 50000 : 0)
+    + (data.necromancer ? 50000 : 0);
+  const ctv = ctvRaw > 0 ? (ctvRaw / 1000).toLocaleString() : '';
   // Treasury in gp
   const treasury = data.treasury != null ? data.treasury.toLocaleString() + ' gp' : '';
   const coach = data.player?.userNameToShow || data._coach || '';
@@ -1157,21 +1221,69 @@ function buildSkillsSection(t){
   return hdr + '<div class="skills-list">'+(items||'<em style="color:#999">No skills found</em>')+'</div>';
 }
 
-function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function setStatus(msg){document.getElementById('gen-status').textContent=msg;}
-function setErr(slot,msg){document.getElementById('err-'+slot).textContent=msg;}
+function printSheet() {
+  // iOS Safari doesn't support window.print() — open print-ready page in new tab
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    // Build a standalone print page and open it — user can then Share → Print
+    const output = document.getElementById('output').innerHTML;
+    const printWin = window.open('', '_blank');
+    printWin.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>BB Game Sheet</title>
+      <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>
+        body{margin:0;padding:0;background:#fff;font-family:'Rajdhani',sans-serif}
+        .page-label{display:none}
+        ${getSheetCSS()}
+      </style>
+
+```
+  </head><body>${output}
+  <p style="text-align:center;font-size:10pt;color:#999;margin-top:20px;font-family:sans-serif">
+    Tap the Share button &#x2197; then select <strong>Print</strong>
+  </p>
+  </body></html>`);
+printWin.document.close();
+```
+
+} else {
+window.print();
+}
+}
+
+function getSheetCSS() {
+// Extract just the sheet/roster CSS from the existing stylesheet
+try {
+for (const sheet of document.styleSheets) {
+let css = ‘’;
+try {
+for (const rule of sheet.cssRules) css += rule.cssText + ‘\n’;
+} catch(e) {}
+if (css.includes(’.sheet’) && css.includes(’.roster’)) return css;
+}
+} catch(e) {}
+return ‘’;
+}
+
+function esc(s){if(!s)return’’;return String(s).replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’);}
+function setStatus(msg){document.getElementById(‘gen-status’).textContent=msg;}
+function setErr(slot,msg){document.getElementById(‘err-’+slot).textContent=msg;}
 function goHome(){
-  document.getElementById('home').style.display='flex';
-  document.getElementById('toolbar').classList.remove('show');
-  document.getElementById('output').classList.remove('show');
-  document.getElementById('output').innerHTML='';
-  teams.a=null;teams.b=null;
-  document.getElementById('sel-a').value='';
-  document.getElementById('sel-b').value='';
-  document.getElementById('live-ok').textContent='';
-  document.getElementById('live-err').textContent='';
-  document.getElementById('fetch-btn').disabled=!document.getElementById('sel-a').value;
-  setStatus('');
+document.getElementById(‘home’).style.display=‘flex’;
+document.getElementById(‘toolbar’).classList.remove(‘show’);
+document.getElementById(‘output’).classList.remove(‘show’);
+document.getElementById(‘output’).innerHTML=’’;
+teams.a=null;teams.b=null;
+document.getElementById(‘sel-a’).value=’’;
+document.getElementById(‘sel-b’).value=’’;
+const pb = document.getElementById(‘print-btn’);
+if (pb) pb.innerHTML = ‘🖨 Print’;
+document.getElementById(‘live-ok’).textContent=’’;
+document.getElementById(‘live-err’).textContent=’’;
+document.getElementById(‘fetch-btn’).disabled=!document.getElementById(‘sel-a’).value;
+setStatus(’’);
 }
 
 // ── Init ──
@@ -1179,5 +1291,6 @@ loadSkillDB();
 loadLeague();
 loadKeywords();
 </script>
+
 </body>
 </html>
