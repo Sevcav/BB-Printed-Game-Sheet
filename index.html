@@ -1100,6 +1100,7 @@ function buildRosterPage(t){
       '</div>'+
       '<div class="team-meta">'+
         (t.coach?'<div><span class="meta-lbl">Coach:</span> '+esc(t.coach)+'</div>':'')+
+        (t.ctv?'<div><span class="meta-lbl">CTV:</span> '+esc(t.ctv)+'k</div>':'')+
         '<div><span class="meta-lbl">Ruleset:</span> BB2025</div>'+
       '</div>'+
     '</div>';
@@ -1109,6 +1110,7 @@ function buildRosterPage(t){
     t.apothecary    ? ['Apothecary', t.apothecary]   : null,
     t.rerolls       ? ['Re-rolls',   t.rerolls]       : null,
     t.dedicatedFans ? ['Fans',       t.dedicatedFans] : null,
+    t.ctv           ? ['CTV',        t.ctv+'k']       : null,
     t.treasury      ? ['Treasury',   t.treasury]      : null,
     ['Players', t.players.length],
   ].filter(Boolean);
