@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Blood Bowl Game Sheets</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Oswald:wght@400;600;700&family=Rajdhani:wght@400;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-base:#0d1f07;--bg-surface:#111c0a;--bg-card:#162610;--bg-header:#0a1505;
+  --gold:#d4a93a;--gold-bright:#f0c84a;--gold-dim:#8a6e1e;--gold-glow:rgba(212,169,58,.18);
+  --green-line:#1e3d12;--text-primary:#e8e0cc;--text-secondary:#a89870;--text-dim:#5a5040;
+  --red-accent:#c0351a;--blue-accent:#2080b0;
+}
+body{
+  font-family:'Rajdhani',sans-serif;font-size:10pt;color:var(--text-primary);min-height:100vh;
+  background-color:var(--bg-base);
+  background-image:linear-gradient(rgba(30,61,18,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(30,61,18,.15) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ── HOME ── */
+#home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px}
+.logo{text-align:center}
+.logo h1{
+  font-family:'Cinzel Decorative',serif;font-size:22pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;
+  background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.9));line-height:1.2;text-align:center;
+}
+.logo p{font-family:'Rajdhani',sans-serif;font-size:9pt;color:var(--text-secondary);letter-spacing:2px;margin-top:6px;text-transform:uppercase;font-weight:600}
+
+/* ── MODE TABS ── */
+.mode-tabs{display:flex;gap:0;width:100%;max-width:740px;border:1px solid var(--gold-dim);border-radius:4px;overflow:hidden}
+
+
+/* ── LIVE MODE ── */
+#live-mode{display:flex;width:100%;max-width:740px;flex-direction:column;gap:14px}
+
+.live-card{background:var(--bg-card);border:1px solid var(--green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
+.live-card-hdr{
+  padding:10px 16px;background:var(--bg-header);border-bottom:1px solid var(--green-line);
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--gold-bright);display:flex;align-items:center;gap:8px;
+}
+.live-card-hdr .status-dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);flex-shrink:0;transition:.3s}
+.live-card-hdr .status-dot.loading{background:#f0c84a;animation:pulse 1s infinite}
+.live-card-hdr .status-dot.ok{background:#40c050}
+.live-card-hdr .status-dot.err{background:var(--red-accent)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.live-card-body{padding:14px 16px}
+.league-status{font-size:8.5pt;color:var(--text-secondary);margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-weight:600}
+
+/* Matchup selector */
+.matchup-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.team-select-wrap{flex:1;min-width:200px}
+.team-select-wrap label{
+  display:block;font-family:'Oswald',sans-serif;font-weight:700;font-size:8pt;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+}
+.team-select-wrap.a label{color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.6)}
+.team-select-wrap.b label{color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.6)}
+.team-select{
+  width:100%;background:rgba(0,0,0,.4);border:1px solid var(--gold-dim);
+  border-radius:3px;padding:8px 10px;color:var(--text-primary);
+  font-family:'Rajdhani',sans-serif;font-size:10pt;font-weight:600;
+  cursor:pointer;transition:.15s;outline:none;
+}
+.team-select:focus{border-color:var(--gold)}
+.team-select option{background:#1a2e10;color:var(--text-primary)}
+
+.vs-badge{
+  font-family:'Cinzel',serif;font-weight:700;font-size:14pt;
+  color:var(--text-dim);letter-spacing:2px;padding:0 4px;flex-shrink:0;margin-top:18px;
+}
+
+.fetch-btn{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;
+  letter-spacing:1.5px;padding:10px 24px;cursor:pointer;transition:.15s;
+  border-radius:3px;background:transparent;color:var(--gold);border:1px solid var(--gold-dim);
+  width:100%;margin-top:12px;
+}
+.fetch-btn:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.fetch-btn:disabled{opacity:.3;cursor:not-allowed}
+
+.live-err{font-size:8pt;color:#ff8070;margin-top:8px;font-family:'Rajdhani',sans-serif;font-weight:600;line-height:1.6;white-space:pre-wrap}
+.live-ok{font-size:8pt;color:#70d070;margin-top:8px;font-family:'Rajdhani',sans-serif;font-weight:600}
+
+/* ── PDF MODE ── */
+.warn-box{
+  background:rgba(140,110,14,.15);border:1px solid var(--gold-dim);padding:12px 16px;
+  font-size:8.5pt;line-height:1.7;border-radius:4px;color:var(--text-secondary);
+}
+.warn-box strong{color:var(--gold)}
+.slots{display:flex;gap:16px;width:100%;flex-wrap:wrap;justify-content:center}
+.slot{flex:1;min-width:280px;max-width:360px;background:var(--bg-card);border:1px solid var(--green-line);border-radius:6px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.6)}
+.slot-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;background:var(--bg-header);border-bottom:1px solid var(--green-line)}
+.slot-hdr.a{border-left:3px solid var(--blue-accent);color:#4fc3f7;text-shadow:0 0 8px rgba(79,195,247,.9),0 0 20px rgba(79,195,247,.5)}
+.slot-hdr.b{border-left:3px solid var(--red-accent);color:#ff6b6b;text-shadow:0 0 8px rgba(255,107,107,.9),0 0 20px rgba(255,107,107,.5)}
+.slot-hdr button{background:none;border:1px solid var(--gold-dim);color:var(--text-secondary);font-size:7.5pt;padding:2px 8px;cursor:pointer;border-radius:2px;display:none;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;transition:.15s;text-shadow:none}
+.slot-hdr button:hover{background:var(--gold-glow);color:var(--gold-bright);border-color:var(--gold)}
+.slot-hdr button.show{display:inline-block}
+.dropzone{margin:12px;border:1px dashed var(--gold-dim);padding:28px 16px;text-align:center;cursor:pointer;transition:.2s;border-radius:4px;background:var(--bg-surface)}
+.dropzone:hover,.dropzone.over{border-color:var(--gold);background:rgba(212,169,58,.06)}
+.drop-icon{font-size:26pt;display:block;margin-bottom:8px;opacity:.7}
+.drop-lbl{font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;color:var(--gold-bright)}
+.drop-hint{font-size:7.5pt;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600}
+.slot-loaded{display:none;padding:12px}
+.slot-loaded.show{display:block}
+.dropzone.hide{display:none}
+.loaded-box{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,0,0,.3);border:1px solid var(--gold-dim);border-radius:3px}
+.loaded-icon{font-size:18pt}
+.loaded-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:12pt;line-height:1.2;color:var(--gold-bright);letter-spacing:.5px}
+.loaded-sub{font-size:8pt;color:var(--text-secondary);margin-top:2px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.slot-err{padding:8px 14px;font-size:8pt;color:#ff8070;min-height:16px;line-height:1.6;white-space:pre-wrap;font-family:'Rajdhani',sans-serif;font-weight:600}
+input[type=file]{display:none}
+
+/* ── SHARED BOTTOM ── */
+.gen-wrap{width:100%;max-width:740px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.btn-gen{font-family:'Oswald',sans-serif;font-weight:700;font-size:13pt;text-transform:uppercase;letter-spacing:3px;padding:14px 40px;cursor:pointer;transition:.15s;width:100%;max-width:380px;border-radius:3px;background:transparent;color:var(--gold);border:1px solid var(--gold-dim)}
+.btn-gen:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.btn-gen:disabled{opacity:.3;cursor:not-allowed}
+#gen-status{font-size:9pt;color:var(--text-secondary);font-weight:600;min-height:18px;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase}
+/* ── JOURNEYMAN SELECTOR ── */
+.jrny-wrap{background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:4px;padding:12px 16px;margin-top:10px}
+.jrny-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:1px;color:var(--gold-bright);margin-bottom:8px}
+.jrny-team{font-size:8pt;color:var(--text-secondary);margin-bottom:6px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.jrny-options{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.jrny-btn{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:8pt;text-transform:uppercase;
+  letter-spacing:1px;padding:5px 12px;border:1px solid var(--gold-dim);border-radius:3px;
+  background:var(--bg-surface);color:var(--text-dim);cursor:pointer;transition:.15s;
+}
+.jrny-btn:hover{border-color:var(--gold);color:var(--gold)}
+.jrny-btn.selected{background:var(--gold-glow);border-color:var(--gold-bright);color:var(--gold-bright)}
+.jrny-cost{font-size:7pt;opacity:.7;margin-left:3px}
+
+/* ── FIXTURE BROWSER ── */
+.fix-controls{margin-bottom:10px}
+.fix-ctrl-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.fix-ctrl-wrap{display:flex;flex-direction:column;gap:5px}
+.fix-ctrl-lbl{font-family:'Oswald',sans-serif;font-weight:700;font-size:8pt;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary)}
+.fix-pill-row{display:flex;flex-wrap:wrap;gap:4px}
+.fix-pill{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:8pt;text-transform:uppercase;
+  letter-spacing:1px;padding:4px 10px;border:1px solid var(--gold-dim);border-radius:3px;
+  background:var(--bg-surface);color:var(--text-dim);cursor:pointer;transition:.15s;
+}
+.fix-pill:hover{border-color:var(--gold);color:var(--gold)}
+.fix-pill.active{background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.fix-list{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.fix-match{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 12px;border:1px solid var(--green-line);border-radius:3px;
+  background:var(--bg-surface);cursor:pointer;transition:.15s;gap:8px;
+}
+.fix-match:hover{border-color:var(--gold);background:var(--gold-glow)}
+.fix-match.selected{border-color:var(--gold-bright);background:rgba(212,169,58,.15)}
+.fix-match.played{opacity:.65}
+.fix-team{flex:1;font-family:'Oswald',sans-serif;font-weight:700;font-size:10pt;color:var(--text-primary);line-height:1.1}
+.fix-team-sub{font-size:7pt;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600}
+.fix-team.right{text-align:right}
+.fix-score{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:12pt;color:var(--gold);
+  min-width:44px;text-align:center;flex-shrink:0;
+}
+.fix-score.unplayed{font-size:9pt;color:var(--text-dim)}
+.fix-fetch-btn{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:10pt;text-transform:uppercase;
+  letter-spacing:1.5px;padding:10px 24px;cursor:pointer;transition:.15s;border-radius:3px;
+  background:transparent;color:var(--gold);border:1px solid var(--gold-dim);
+  width:100%;margin-top:10px;
+}
+.fix-fetch-btn:hover:not(:disabled){background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+.fix-fetch-btn:disabled{opacity:.3;cursor:not-allowed}
+
+.howtouse{max-width:740px;width:100%;font-size:8pt;color:var(--text-dim);line-height:1.8;border-top:1px solid var(--green-line);padding-top:14px;text-align:center;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.5px}
+.howtouse a{color:var(--gold-dim);text-decoration:none}
+.howtouse a:hover{color:var(--gold)}
+
+/* ── TOOLBAR ── */
+#toolbar{display:none;position:sticky;top:0;z-index:200;background:var(--bg-header);color:var(--text-primary);padding:10px 20px;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--gold-dim);box-shadow:0 2px 20px rgba(0,0,0,.7)}
+#toolbar.show{display:flex}
+.tb-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:11pt;text-transform:uppercase;letter-spacing:2px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#e8b830 0%,#c9842a 45%,#d4a030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tb-btn{font-family:'Oswald',sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:1px;padding:7px 18px;border:1px solid var(--gold-dim);background:none;color:var(--gold);cursor:pointer;white-space:nowrap;transition:.15s;border-radius:3px}
+.tb-btn:hover{background:var(--gold-glow);border-color:var(--gold);color:var(--gold-bright)}
+
+/* ── OUTPUT ── */
+#output{display:none}
+#output.show{display:block;padding:8px 0 40px}
+.page-label{font-family:'Oswald',sans-serif;font-size:8pt;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;width:190mm;margin:10mm auto 3mm;padding-bottom:3mm;border-bottom:1px solid var(--green-line)}
+.sheet{width:190mm;margin:0 auto 6mm;background:#fff;padding:8mm 10mm;box-shadow:0 4px 24px rgba(0,0,0,.5);color:#000}
+.sheet-roster{padding:8mm 10mm}
+.sheet-skills{padding:8mm 10mm}
+
+/* ── ROSTER PAGE — tight, fits 16 players ── */
+.team-hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:2mm}
+.team-name{font-family:'Oswald',sans-serif;font-size:18pt;font-weight:700;letter-spacing:1px;line-height:1;color:#000}
+.team-race{font-family:'Oswald',sans-serif;font-size:8.5pt;color:#333;text-transform:uppercase;letter-spacing:2px;margin-top:1mm}
+.team-meta{text-align:right;font-size:6.5pt;line-height:1.7;color:#000}
+.meta-lbl{font-weight:700;text-transform:uppercase;font-size:5.5pt;letter-spacing:.5px}
+
+/* Sideline bar */
+.side-bar{display:flex;gap:0;border:1px solid #aaa;margin-bottom:2mm;font-size:6.5pt}
+.side-item{display:flex;flex-direction:column;padding:1mm 2.5mm;border-right:1px solid #ccc;min-width:16mm}
+.side-item:last-child{border-right:none;flex:1}
+.side-rules{flex:2}
+.side-k{font-family:'Oswald',sans-serif;font-weight:700;font-size:5.5pt;text-transform:uppercase;letter-spacing:.3px;color:#555}
+.side-v{font-weight:700;font-size:7.5pt;color:#000;line-height:1.3}
+
+/* Roster table */
+.roster-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:7.5pt;text-transform:uppercase;letter-spacing:1.5px;background:#000;color:#fff;padding:1mm 2.5mm;margin-bottom:0}
+table.roster{width:100%;border-collapse:collapse;font-size:6pt;color:#000}
+table.roster th{font-family:'Oswald',sans-serif;font-weight:700;font-size:5.5pt;text-transform:uppercase;letter-spacing:.2px;background:#e0e0e0;border:1px solid #bbb;padding:.8mm 1.5mm;text-align:center;white-space:nowrap;color:#000}
+table.roster th.l{text-align:left}
+table.roster td{border:1px solid #ddd;padding:.7mm 1.5mm;vertical-align:middle;line-height:1.2;color:#000}
+table.roster td.c{text-align:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:6.5pt}
+table.roster tr:nth-child(even) td{background:#f8f8f8}
+.pos-name{font-family:'Oswald',sans-serif;font-weight:700;font-size:6.5pt;color:#000}
+.sk-cell{font-size:5.5pt;line-height:1.35}
+.cost-cell{font-size:5.5pt;color:#555;white-space:nowrap;text-align:right!important}
+.kw-line{font-size:5pt;color:#777;margin-top:1.5mm}
+.ctv-break{font-size:5pt;color:#444;margin-bottom:1.5mm;line-height:1.5;border-top:1px solid #eee;padding-top:1mm}
+.plr-name{font-size:5.5pt;color:#777;font-style:italic;margin-left:3px}
+.badge-miss{font-size:5pt;font-weight:700;background:#222;color:#fff;padding:0 3px;border-radius:2px;margin-left:3px;vertical-align:middle}
+.badge-ni{font-size:5pt;font-weight:700;background:#555;color:#fff;padding:0 3px;border-radius:2px;margin-left:3px;vertical-align:middle}
+tr.row-miss td{opacity:.5}
+.mini-stats{display:flex;flex-wrap:wrap;gap:2px;margin-top:1.5px}
+.badge-spp{font-size:5pt;font-weight:700;background:#444;color:#fff;padding:0 3px;border-radius:2px}
+.badge-spp.pending{background:#666;color:#fff}
+.stat-lvl{font-size:5pt;color:#888;font-style:italic}
+.stat-cas{font-size:5pt;font-weight:700;color:#222}
+.stat-td{font-size:5pt;font-weight:700;color:#222}
+.stat-mvp{font-size:5pt;color:#444}
+.stat-comp{font-size:5pt;color:#444}
+
+/* ── SKILLS PAGE — flows to as many pages as needed ── */
+.skills-page-hdr{border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:3mm}
+.skills-team-name{font-family:'Oswald',sans-serif;font-size:16pt;font-weight:700;letter-spacing:1px;color:#000}
+.skills-team-sub{font-size:6.5pt;color:#555;margin-top:1mm}
+.skills-list{font-size:6.5pt;line-height:1.5;columns:2;column-gap:6mm;color:#000}
+.sk{break-inside:avoid;margin-bottom:3mm;padding-bottom:2mm;border-bottom:1px solid #eee}
+.sk:last-child{border-bottom:none}
+.sk-name{font-weight:700;font-family:'Oswald',sans-serif;font-size:7.5pt;letter-spacing:.2px}
+.sk-type{font-size:6pt;color:#555;font-style:italic}
+.sk-elite{font-size:5.5pt;font-weight:700;background:#000;color:#fff;padding:0 3px;border-radius:1px;margin-left:1px;vertical-align:middle}
+.sk-cat{font-size:5.5pt;color:#666;font-style:italic;margin-left:2px;font-family:'Rajdhani',sans-serif}
+
+@media print{
+* { color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+  body{background:#fff!important;background-image:none!important}
+  #home,#toolbar,.page-label{display:none!important}
+  #output{display:block!important;padding:0}
+  .sheet{margin:0;box-shadow:none;width:100%;page-break-after:always}
+  .sheet-roster{padding:8mm 10mm}
+  .sheet-skills{padding:8mm 10mm;page-break-after:always}
+  .sheet:last-child,.sheet-skills:last-child{page-break-after:avoid}
+  .skills-list{columns:2}
+  table.roster td{padding:.5mm 1.5mm}
+  table.roster th{padding:.5mm 1.5mm}
+}
+@media(max-width:600px){
+  .logo h1{font-size:17pt}
+  .slots{flex-direction:column}
+  .slot{min-width:100%}
+  .sheet{width:100%;margin:4px auto;padding:4mm;box-shadow:none}
+  .page-label{width:100%}
+  .info-row{flex-direction:column}
+  .skills-list{columns:1}
+  table.roster{font-size:5.5pt}
+  table.roster th{font-size:5pt}
+  .matchup-row{flex-direction:column}
+  .vs-badge{margin-top:0}
+}
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="logo">
+    <h1>Blood Bowl<br>Game Sheets</h1>
+    <p>COBB Season 3 &nbsp;&middot;&nbsp; Tourplay Roster Import</p>
+  </div>
+
+
+
+  <!-- LIVE MODE -->
+  <div id="live-mode">
+    <div class="live-card">
+      <div class="live-card-hdr">
+        <span class="status-dot" id="league-dot"></span>
+        <span id="league-hdr-text">Loading COBB S03 Roster&hellip;</span>
+      </div>
+      <div class="live-card-body">
+        <div class="league-status" id="league-status">Connecting to Tourplay&hellip;</div>
+
+        <!-- FIXTURE BROWSER -->
+        <div id="fixture-browser" style="display:none">
+          <div class="fix-controls">
+            <div class="fix-ctrl-row">
+              <div class="fix-ctrl-wrap">
+                <span class="fix-ctrl-lbl">Division</span>
+                <div class="fix-pill-row" id="div-pills"></div>
+              </div>
+              <div class="fix-ctrl-wrap">
+                <span class="fix-ctrl-lbl">Round</span>
+                <div class="fix-pill-row" id="round-pills"></div>
+              </div>
+            </div>
+          </div>
+          <div id="fixture-list"></div>
+        </div>
+
+        <!-- MANUAL SELECTOR (shown if fixtures fail to load) -->
+        <div id="manual-selector">
+          <div class="matchup-row">
+            <div class="team-select-wrap a">
+              <label>&#9632; Team A</label>
+              <select class="team-select" id="sel-a" onchange="onSelectChange()">
+                <option value="">— Loading teams —</option>
+              </select>
+            </div>
+            <div class="vs-badge">VS</div>
+            <div class="team-select-wrap b">
+              <label>&#9632; Team B</label>
+              <select class="team-select" id="sel-b" onchange="onSelectChange()">
+                <option value="">— Loading teams —</option>
+              </select>
+            </div>
+          </div>
+          <button class="fetch-btn" id="fetch-btn" disabled onclick="fetchSelectedTeams()">
+            &#8987; Fetch Rosters &amp; Generate Sheet
+          </button>
+        </div>
+        <div class="live-err" id="live-err"></div>
+        <div class="live-ok" id="live-ok"></div>
+        <div id="jrny-selector" style="display:none"></div>
+        <div id="gen-status" style="font-size:8pt;color:var(--text-secondary);margin-top:4px;font-family:'Rajdhani',sans-serif;font-weight:600;min-height:14px"></div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="howtouse">
+    Works for any race &nbsp;&middot;&nbsp; One team or two for match-day
+  </div>
+
+</div>
+
+<div id="toolbar">
+  <div class="tb-title" id="tb-title">BB Game Sheet</div>
+  <button class="tb-btn" onclick="window.print()">&#128424; Print</button>
+  <button class="tb-btn" onclick="goHome()">&#8617; New Sheet</button>
+</div>
+
+<div id="output"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ * BLOOD BOWL GAME SHEET GENERATOR
+ * https://sevcav.github.io/BB-Game-Sheet-Dev/  (dev)
+ * https://sevcav.github.io/BB-Printed-Game-Sheet/  (stable)
+ * ═══════════════════════════════════════════════════════════════════
+ *
+ * DATA SOURCES
+ * ─────────────────────────────────────────────────────────────────
+ * Tourplay API (all endpoints are public, no auth required):
+ *   League inscriptions (team list):
+ *     GET https://tourplay.net/api/inscriptions/{league-slug}/category/{cat-id}/inscriptions?page=0&pageSize=75
+ *     Response: { "{cat-id}": [ { id, player, roster: { id, teamName, teamRace } } ] }
+ *
+ *   Individual roster:
+ *     GET https://tourplay.net/api/rosters/{rosterId}
+ *     Response: { teamName, teamRace, reRolls, fanFactor, apothecary, necromancer,
+ *                 assistantCoaches, cheerLeaders, treasury,
+ *                 lineUps: [ { number, name, position, ma, st, ag, pa, av, cost,
+ *                              canPlayNextGame, nigglingInjuries, starPlayerPoints,
+ *                              totalCasualties, totalTouchdowns, totalMVP, totalPass,
+ *                              totalStarPlayerPoints, pendingImprovements, level,
+ *                              lineUpMaster: { position, skills[], race[], cost },
+ *                              skills[] } ],
+ *                 rosterMaster: { lineUpMasters[], prizeReRoll } }
+ *
+ *   Fixtures / schedule (rounds + groups + matches):
+ *     GET https://tourplay.net/api/tournament/{league-slug}/phases?type=COACH
+ *     Response: { "{phaseId}": { rounds: [ { roundNumber, groups: [
+ *                  { name: "Morg"|"Akhorne", matches: [
+ *                    { rosterLocal: {id, teamName, teamRace, inscription},
+ *                      rosterVisitor: {id, teamName, teamRace, inscription},
+ *                      scoreResume: {totalScoreLocal, totalScoreVisitor},
+ *                      state: 0=unplayed } ] } ] } ] } }
+ *
+ *   COBB S03 league slug:  cobb-s03-sponsored-by-modern-games
+ *   COBB S03 category ID:  23924
+ *   COBB S03 phase ID:     31846
+ *
+ * Cloudflare Worker (CORS proxy for Tourplay + skill DB):
+ *   https://bb-gamesheet-app.chapman-thor.workers.dev
+ *   Routes: /api/*  → proxies to tourplay.net/api/*
+ *           /proxy?url=  → generic proxy for external skill pages
+ *
+ * Skill descriptions:
+ *   Primary:  https://bloodbowlbase.ru/bb2025/core_rules/skills_and_traits/
+ *   Fallback: https://bbtc.pl/resources/bb2025/skills
+ *   Parser:   looks for h4 headings "SKILL NAME (ACTIVE|PASSIVE)"
+ *
+ * BB2025 team rosters, re-roll costs, player costs, special rules:
+ *   https://bloodbowlbase.ru/bb2025/teams/{TeamName}/
+ *   Used to build: REROLL_COST table, verify LINEMAN_PATTERN positions
+ *
+ * ─────────────────────────────────────────────────────────────────
+ * CTV CALCULATION (BB2025 rulebook)
+ * ─────────────────────────────────────────────────────────────────
+ *   TV  = sum(all player current values) + re-rolls + sideline staff
+ *         Dedicated Fans and Treasury are NOT included
+ *   CTV = TV − sum(MNG player values) + (journeyman lineman cost × MNG count)
+ *         Journeyman = cheapest lineman-type position matching MNG player's race
+ *         LINEMAN_PATTERN matches position names across all races
+ *   LOW COST LINEMEN (Snotling, Ogre): lineman positions count as 0k in CTV
+ *
+ * ─────────────────────────────────────────────────────────────────
+ * KEYWORD IDs (Tourplay numeric IDs for Hatred/Animosity targets)
+ * ─────────────────────────────────────────────────────────────────
+ *   Confirmed: 101=Goblin, 102=Troll, 103=Orc, 104=Elf, 112=Human
+ *   Rest are estimates — enrichKeywordMapFromRoster() learns IDs at runtime
+ *   from lineUpMaster.race arrays in each fetched roster
+ *
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+// ── Config ──
+const LEAGUE_SLUG    = 'cobb-s03-sponsored-by-modern-games';
+const CATEGORY_ID    = '23924';
+const TOURPLAY_BASE  = 'https://tourplay.net';
+const INSCRIPTIONS_URL = `${TOURPLAY_BASE}/api/inscriptions/${LEAGUE_SLUG}/category/${CATEGORY_ID}/inscriptions?page=0&pageSize=75`;
+// Cloudflare Worker proxy — handles CORS for Tourplay API
+const CF_WORKER = 'https://bb-gamesheet-app.chapman-thor.workers.dev';
+// Worker intercepts /api/* paths and adds Access-Control-Allow-Origin: *
+
+// Race name mapping from Tourplay teamRace strings
+const RACE_MAP = {
+  'ChaosChosen_BB2025':       'Chaos Chosen',
+  'Khemri_BB2025':            'Tomb Kings',
+  'Orc_BB2025':               'Orc',
+  'Underworld_BB2025':        'Underworld Denizens',
+  'Lizardmen_BB2025':         'Lizardmen',
+  'Khorne_BB2025':            'Khorne',
+  'DarkElf_BB2025':           'Dark Elf',
+  'Vampire_BB2025':           'Vampire',
+  'Snotling_BB2025':          'Snotling',
+  'HighElf_BB2025_Legacy':    'High Elf',
+  'HighElf_BB2025':           'High Elf',
+  'Norse_BB2025':             'Norse',
+  'Nurgle_BB2025':            'Nurgle',
+  'Skaven_BB2025':            'Skaven',
+  'OldWorldAlliance_BB2025':  'Old World Alliance',
+  'WoodElf_BB2025':           'Wood Elf',
+  'BlackOrc_BB2025':          'Black Orc',
+  'Amazon_BB2025':            'Amazon',
+  'Human_BB2025':             'Human',
+  'Halfling_BB2025':          'Halfling',
+  'Dwarf_BB2025':             'Dwarf',
+  'Goblin_BB2025':            'Goblin',
+  'Necromantic_BB2025':       'Necromantic',
+  'Chaos_BB2025':             'Chaos Renegades',
+  'Elven_BB2025':             'Elven Union',
+};
+function cleanRace(r) {
+  if (!r) return '';
+  if (RACE_MAP[r]) return RACE_MAP[r];
+  // Fallback: strip _BB2025 suffix and add spaces before capitals
+  return r.replace(/_BB2025.*$/,'').replace(/([A-Z])/g,' $1').trim();
+}
+
+// ── Journeyman options per race (BB2025 rulebook, verified from bloodbowlbase.ru) ──
+// Only includes 0-16 Lineman positions eligible as journeymen
+// Multiple entries = team has a genuine journeyman choice
+// Source: https://bloodbowlbase.ru/bb2025/teams/[Race]/
+const JOURNEYMAN_OPTIONS = {
+  'Amazon_BB2025':           [['Amazon Linewoman',      50000]],
+  'BlackOrc_BB2025':         [['Goblin Lineman',        40000]],
+  'Bretonnian_BB2025':       [['Bretonnian Squire',     50000]],
+  'ChaosChosen_BB2025':      [['Beastman Runner',       60000]],
+  'ChaosDwarf_BB2025':       [['Hobgoblin Lineman',     40000]],
+  'ChaosRenegades_BB2025':   [['Renegade Human Lineman',50000]],
+  'DarkElf_BB2025':          [['Dark Elf Lineman',      65000]],
+  'Dwarf_BB2025':            [['Dwarf Lineman',         70000]],
+  'Elven_BB2025':            [['Elf Lineman',           65000]],
+  'Gnome_BB2025':            [['Gnome Lineman',         40000]],
+  'Goblin_BB2025':           [['Goblin Lineman',        40000]],
+  'Halfling_BB2025':         [['Halfling Hopeful',      30000]],
+  'HighElf_BB2025':          [['High Elf Lineman',      65000]],
+  'HighElf_BB2025_Legacy':   [['High Elf Lineman',      65000]],
+  'Human_BB2025':            [['Human Lineman',         50000]],
+  'ImperialNobility_BB2025': [['Imperial Retainer',     45000]],
+  'Khemri_BB2025':           [['Skeleton Lineman',      40000]],
+  'Khorne_BB2025':           [['Khorne Marauder',       50000]],
+  'Lizardmen_BB2025':        [['Skink Runner',          60000]],
+  'Necromantic_BB2025':      [['Zombie Lineman',        40000]],
+  'Norse_BB2025':            [['Norse Lineman',         50000]],
+  'Nurgle_BB2025':           [['Rotter',                40000]],
+  'Ogre_BB2025':             [['Snotling Lineman',      15000]], // LOW COST LINEMEN
+  'OldWorldAlliance_BB2025': [['Human Lineman',         50000]], // Only 0-16; Halfling/Dwarf are 0-3
+  'Orc_BB2025':              [['Orc Lineman',50000],['Goblin Lineman',40000]],
+  'Skaven_BB2025':           [['Skaven Clanrat',        50000]],
+  'Snotling_BB2025':         [['Snotling Lineman',      15000]], // LOW COST LINEMEN
+  'Undead_BB2025':           [['Zombie Lineman',        40000]],
+  'Underworld_BB2025':       [['Underworld Goblin',40000],['Skaven Clanrat',50000]],
+  'Vampire_BB2025':          [['Thrall Lineman',        40000]],
+  'WoodElf_BB2025':          [['Wood Elf Lineman',      70000]],
+};
+
+// ── Re-roll costs per race (BB2025 rulebook values) ──
+// Source: https://bloodbowlbase.ru/bb2025/teams/[Race]/
+// High Elf confirmed 50k from live page fetch
+const REROLL_COST = {
+  'Amazon_BB2025':            50000,
+  'BlackOrc_BB2025':          70000,
+  'Bretonnian_BB2025':        60000,
+  'ChaosChosen_BB2025':       70000,
+  'ChaosDwarf_BB2025':        70000,
+  'ChaosRenegades_BB2025':    60000,
+  'DarkElf_BB2025':           50000,
+  'Dwarf_BB2025':             80000,
+  'Elven_BB2025':             50000,
+  'Gnome_BB2025':             50000,
+  'Goblin_BB2025':            60000,
+  'Halfling_BB2025':          60000,
+  'HighElf_BB2025':           50000,
+  'HighElf_BB2025_Legacy':    50000,
+  'Human_BB2025':             60000,
+  'ImperialNobility_BB2025':  60000,
+  'Khemri_BB2025':            60000,
+  'Khorne_BB2025':            60000,
+  'Lizardmen_BB2025':         60000,
+  'Necromantic_BB2025':       60000,
+  'Norse_BB2025':             60000,
+  'Nurgle_BB2025':            60000,
+  'Ogre_BB2025':              70000,
+  'OldWorldAlliance_BB2025':  70000,
+  'Orc_BB2025':               70000,
+  'Snotling_BB2025':          60000,
+  'Undead_BB2025':            60000,
+  'Underworld_BB2025':        70000,
+  'Vampire_BB2025':           50000,
+  'WoodElf_BB2025':           50000,
+};
+
+// COBB S03 — all 20 teams, confirmed from API response
+const FALLBACK_TEAMS = [
+  { name:"Superfluous Nimiety",                  race:'Chaos Chosen',        id:'183924', coach:'fe2mike'          },
+  { name:"Djaf Destroyers",                      race:'Tomb Kings',           id:'184150', coach:'Coalerbear'       },
+  { name:"D'Orks",                               race:'Orc',                  id:'184613', coach:'Sevcav'           },
+  { name:"Robber Barons",                        race:'Underworld Denizens',  id:'184693', coach:'CoolPretzel'      },
+  { name:"The Sauros Squad",                     race:'Lizardmen',            id:'184729', coach:'Felix Fernandez'  },
+  { name:"Khornegie's Union Bashers",            race:'Khorne',               id:'184857', coach:'doristhelil'      },
+  { name:"Har-Ganeth Headtakers",                race:'Dark Elf',             id:'184888', coach:'TheUsual1986'     },
+  { name:"Nosferatoes",                          race:'Vampire',              id:'184898', coach:'Tx-Ranger2'       },
+  { name:"Snotholm Syndrome",                    race:'Snotling',             id:'184909', coach:'Randomis Ray'     },
+  { name:"ELFS",                                 race:'High Elf',             id:'185116', coach:'Peter Askew'      },
+  { name:"Stormfjord Reavers",                   race:'Norse',                id:'185429', coach:'Nate Dogg'        },
+  { name:"Children of Ash and Elm",              race:'Norse',                id:'185528', coach:'Jason Stevens'    },
+  { name:"Gross Bay Pukers",                     race:'Nurgle',               id:'186347', coach:'Destrogio2'       },
+  { name:"Limburger Cheesers",                   race:'Skaven',               id:'186352', coach:'KhorneFC'         },
+  { name:"Blackstone Badgers",                   race:'Old World Alliance',   id:'186356', coach:'dredge77'         },
+  { name:"Bad Blitzas",                          race:'Orc',                  id:'186357', coach:'TwoCage'          },
+  { name:"King gizzard and the Lizard Wizards",  race:'Lizardmen',            id:'186472', coach:'Christian Warren' },
+  { name:"Modryn Moonlighters",                  race:'Wood Elf',             id:'186668', coach:'Minimurder28'     },
+  { name:"Prime Panthers",                       race:'Amazon',               id:'188561', coach:'volfiedr'         },
+  { name:"The Black Mountain Stout Swiggaz",     race:'Black Orc',            id:'188726', coach:'Collette'         },
+];
+
+// ── Fixtures state ──
+let fixturesData = [];   // raw fixture list once loaded
+let fixturesLoaded = false;
+
+// Confirmed fixture endpoint — public, no auth required
+// Response: { "31846": { rounds: [ { roundNumber, groups: [ { name, matches: [...] } ] } ] } }
+const PHASES_URL = `${TOURPLAY_BASE}/api/tournament/${LEAGUE_SLUG}/phases?type=COACH`;
+// Phase ID is the top-level key in the response (31846 for COBB S03)
+let PHASE_ID = null;
+
+async function loadFixtures() {
+  try {
+    const data = await tourplayFetch(PHASES_URL);
+    // Find the phase key (e.g. "31846")
+    const phaseKey = Object.keys(data).find(k => data[k]?.rounds?.length > 0);
+    if (!phaseKey) { console.warn('No phases found in fixture data'); return false; }
+    PHASE_ID = phaseKey;
+    fixturesData = data[phaseKey].rounds;
+    fixturesLoaded = true;
+    console.log('Fixtures loaded — phase:', phaseKey, 'rounds:', fixturesData.length);
+    return true;
+  } catch(e) {
+    console.warn('Fixtures load failed:', e.message);
+    return false;
+  }
+}
+
+// Parse fixtures from confirmed structure:
+// rounds[] -> { roundNumber, groups[] -> { name, matches[] -> { rosterLocal, rosterVisitor, scoreResume, state } } }
+function parseFixtures(rounds) {
+  const out = [];
+  for (const round of rounds) {
+    const roundNum = round.roundNumber;
+    for (const group of (round.groups || [])) {
+      const division = (group.name || '').toUpperCase().trim();
+      for (const m of (group.matches || [])) {
+        const local   = m.rosterLocal   || {};
+        const visitor = m.rosterVisitor || {};
+        const played  = m.state !== 0 && m.scoreResume != null;
+        out.push({
+          round:      roundNum,
+          division,
+          homeId:     String(local.id   || ''),
+          homeName:   local.teamName    || '',
+          homeRace:   cleanRace(local.teamRace || ''),
+          homeCoach:  local.inscription?.player?.userNameToShow || '',
+          awayId:     String(visitor.id || ''),
+          awayName:   visitor.teamName  || '',
+          awayRace:   cleanRace(visitor.teamRace || ''),
+          awayCoach:  visitor.inscription?.player?.userNameToShow || '',
+          played,
+          scoreHome:  played ? m.scoreResume.totalScoreLocal   : null,
+          scoreAway:  played ? m.scoreResume.totalScoreVisitor : null,
+        });
+      }
+    }
+  }
+  return out.filter(f => f.homeId && f.awayId);
+}
+
+// ── Keyword ID → Name map (for Hatred (X), Animosity (X), Loner (X+) etc.) ──
+// Confirmed: 112=Human, 102=Troll, 103=Orc  |  rest are best estimates
+let KEYWORD_MAP = {
+  101:'Goblin', 102:'Troll', 103:'Orc', 104:'Elf', 105:'Dwarf',
+  106:'Halfling', 107:'Skaven', 108:'Undead', 109:'Nurgle', 110:'Chaos',
+  111:'Snotling', 112:'Human', 113:'Norse', 114:'Khorne', 115:'Amazon',
+  116:'Ogre', 117:'Vampire', 118:'Lizardmen', 119:'Tomb Kings',
+  120:'Dark Elf', 121:'High Elf', 122:'Wood Elf', 123:'Black Orc',
+  124:'Imperial', 125:'Bretonnian', 126:'Gnome', 127:'Chaos Dwarf',
+  // Special/extra keywords
+  200:'Big Guy', 201:'Blocker', 202:'Blitzer', 203:'Thrower',
+  204:'Catcher', 205:'Runner', 206:'Lineman', 207:'Special',
+};
+
+async function loadKeywords() {
+  // Try to fetch the authoritative keyword list from Tourplay
+  const endpoints = [
+    '/api/keywords', '/api/blood-bowl/keywords',
+    '/api/races', '/api/blood-bowl/races',
+  ];
+  for (const ep of endpoints) {
+    try {
+      const data = await tourplayFetch(TOURPLAY_BASE + ep);
+      if (Array.isArray(data) && data.length > 5) {
+        const map = {};
+        data.forEach(k => {
+          const id   = k.id   || k.keywordId || k.raceId;
+          const name = k.name || k.keyword   || k.race;
+          if (id && name) map[id] = name;
+        });
+        if (Object.keys(map).length > 5) {
+          KEYWORD_MAP = {...KEYWORD_MAP, ...map};
+          console.log('Keywords loaded from API:', Object.keys(map).length);
+          return;
+        }
+      }
+    } catch(e) { /* try next */ }
+  }
+  console.log('Using hardcoded keyword map');
+}
+
+// Self-build keyword map from roster's lineUpMasters position race IDs
+// e.g. sees race:[101] on "Goblin Lineman" -> learns 101="Goblin"
+function enrichKeywordMapFromRoster(data) {
+  const masters = data.rosterMaster?.lineUpMasters || [];
+  const POSITION_WORDS = [
+    'Big Un Blocker','Blocker','Blitzer','Thrower','Runner','Lineman','Catcher',
+    'Witch Elf','Assassin','Rotter','Wight','Ghoul','Zombie','Flesh Golem',
+    'Werewolf','Skeleton','Mummy','Guard','Marauder','Beastman','Chaos Warrior',
+    'Minotaur','Troll','Ogre','Treeman','Rat Ogre','Gutter Runner','Storm Vermin',
+    'Thrall','Vampire','Saurus','Skink','Kroxigor','Pump Wagon','Trained Troll',
+    'Fungus Flinga','Stilty Runna','Fun Hoppa','Hoppa',
+  ].sort((a,b) => b.length - a.length);
+
+  for (const master of masters) {
+    const ids = master.race || [];
+    let pos = (master.position || '').trim();
+    if (!pos || !ids.length) continue;
+    let keyword = pos;
+    for (const word of POSITION_WORDS) {
+      if (pos.endsWith(word)) { keyword = pos.slice(0, pos.length - word.length).trim(); break; }
+    }
+    for (const id of ids) {
+      if (!KEYWORD_MAP[id] && keyword) {
+        KEYWORD_MAP[id] = keyword;
+        console.log(`Learned keyword: ${id} = "${keyword}"`);
+      }
+    }
+  }
+}
+
+// Resolve a skill attribute value to a human-readable name
+// e.g. "112" -> "Human", "4+" stays "4+", "Orc" stays "Orc"
+function resolveAttr(attr) {
+  if (!attr) return '';
+  // If it's already text (not purely numeric), return as-is
+  if (!/^\d+$/.test(attr)) return attr;
+  // It's a numeric ID — look up keyword name
+  const id = parseInt(attr);
+  return KEYWORD_MAP[id] || attr;  // fall back to raw number if unknown
+}
+
+// ── State ──
+const teams = {a:null, b:null};
+let skillDB = {};
+let leagueTeams = [];
+
+
+
+// ════════════════════════════════════════
+// TOURPLAY API FETCH (with CORS proxies)
+// ════════════════════════════════════════
+async function tourplayFetch(url) {
+  // Route through Cloudflare Worker which adds CORS headers
+  // Worker URL pattern: replace https://tourplay.net with CF_WORKER
+  const workerUrl = url.replace('https://tourplay.net', CF_WORKER);
+  try {
+    const r = await fetch(workerUrl, {
+      headers: { 'Accept': 'application/json, text/plain, */*' },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (r.ok) return await r.json();
+    throw new Error(`HTTP ${r.status}`);
+  } catch(e) {
+    // Fallback: try direct (works if Tourplay ever opens CORS)
+    try {
+      const r2 = await fetch(url, {
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (r2.ok) return await r2.json();
+    } catch(e2) { /* fall through */ }
+    throw new Error(`Tourplay API unreachable: ${e.message}`);
+  }
+}
+
+// ════════════════════════════════════════
+// LOAD LEAGUE — fetch all 20 teams
+// ════════════════════════════════════════
+async function loadLeague() {
+  const dot    = document.getElementById('league-dot');
+  const hdr    = document.getElementById('league-hdr-text');
+  const status = document.getElementById('league-status');
+
+  dot.className = 'status-dot loading';
+  hdr.textContent = 'Connecting to COBB S03\u2026';
+  status.textContent = 'Fetching league roster from Tourplay\u2026';
+
+  try {
+    const data = await tourplayFetch(INSCRIPTIONS_URL);
+    // Response shape: { "23924": [ ...inscriptions ] }
+    const list = data[CATEGORY_ID] || data.inscriptions || (Array.isArray(data) ? data : []);
+
+    leagueTeams = list
+      .filter(item => item.roster && item.roster.id)
+      .map(item => ({
+        name:  item.roster.teamName  || '(Unknown)',
+        race:  cleanRace(item.roster.teamRace),
+        id:    String(item.roster.id),
+        coach: item.player?.userNameToShow || '',
+      }))
+      .sort((a,b) => a.name.localeCompare(b.name));
+
+    if (leagueTeams.length === 0) throw new Error('Empty team list in API response');
+
+    dot.className = 'status-dot ok';
+    hdr.textContent = `COBB S03 \u2014 ${leagueTeams.length} Teams`;
+    status.textContent = `${leagueTeams.length} teams loaded \u00B7 Loading fixtures\u2026`;
+    document.getElementById('live-err').textContent = '';
+
+  } catch(e) {
+    console.warn('League fetch failed, using fallback:', e.message);
+    leagueTeams = [...FALLBACK_TEAMS].sort((a,b) => a.name.localeCompare(b.name));
+    dot.className = 'status-dot';  // neutral — not an error, just offline
+    hdr.textContent = 'COBB S03 \u2014 Saved Roster';
+    status.textContent = `${leagueTeams.length} teams (offline mode) \u00B7 Loading fixtures\u2026`;
+    document.getElementById('live-err').textContent = '';
+  }
+
+  populateSelects();
+
+  // Try fixture browser — fall back to manual selects if API unavailable
+  const gotFixtures = await loadFixtures();
+  if (gotFixtures) {
+    document.getElementById('fixture-browser').style.display = 'block';
+    document.getElementById('manual-selector').style.display = 'none';
+    status.textContent = 'Select division, round, then click your match';
+    renderFixtureBrowser();
+  } else {
+    document.getElementById('fixture-browser').style.display = 'none';
+    document.getElementById('manual-selector').style.display = 'block';
+    status.textContent = leagueTeams.length + ' teams loaded · Select matchup below';
+  }
+}
+
+function populateSelects() {
+  const makeOpts = (excludeId='') =>
+    '<option value="">— Select team —</option>' +
+    leagueTeams.map(t =>
+      `<option value="${t.id}">${esc(t.name)} &nbsp;(${esc(t.race)}) &mdash; ${esc(t.coach)}</option>`
+    ).join('');
+
+  document.getElementById('sel-a').innerHTML = makeOpts();
+  document.getElementById('sel-b').innerHTML = makeOpts();
+  onSelectChange();
+}
+
+function onSelectChange() {
+  const a = document.getElementById('sel-a').value;
+  const b = document.getElementById('sel-b').value;
+  document.getElementById('fetch-btn').disabled = !a;
+  // Disable same team in both selects
+  [...document.getElementById('sel-a').options].forEach(o => o.disabled = o.value && o.value===b);
+  [...document.getElementById('sel-b').options].forEach(o => o.disabled = o.value && o.value===a);
+}
+
+// ════════════════════════════════════════
+// FETCH SELECTED ROSTERS & GENERATE
+// ════════════════════════════════════════
+async function fetchSelectedTeams() {
+  const idA = document.getElementById('sel-a').value;
+  const idB = document.getElementById('sel-b').value;
+  if (!idA) return;
+
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled = true;
+  btn.textContent = '\u23F3 Fetching rosters\u2026';
+  document.getElementById('live-err').textContent = '';
+  document.getElementById('live-ok').textContent = '';
+
+  if (Object.keys(skillDB).length === 0) {
+    setStatus('Loading skill database\u2026');
+    await loadSkillDB();
+  }
+  await loadKeywords();
+
+  const idsToFetch = [idA, idB].filter(Boolean);
+  const fetched = [];
+
+  for (const id of idsToFetch) {
+    setStatus(`Fetching roster ${id}\u2026`);
+    try {
+      const data = await tourplayFetch(`${TOURPLAY_BASE}/api/rosters/${id}`);
+      console.log(`Roster ${id}:`, data);
+      // Self-build keyword map from this roster's position data
+      enrichKeywordMapFromRoster(data);
+      // Inject coach name from our league team list since roster API doesn't include it
+      const leagueEntry = leagueTeams.find(t => t.id === id);
+      if (leagueEntry && !data.player) data._coach = leagueEntry.coach;
+      fetched.push(parseTourplayAPI(data, id));
+    } catch(e) {
+      document.getElementById('live-err').textContent =
+        `\u26A0 Could not fetch roster ${id}: ${e.message}\n\nTry the PDF tab instead.`;
+      btn.disabled = false;
+      btn.textContent = '\u26A1 Fetch Rosters & Generate Sheet';
+      setStatus('');
+      return;
+    }
+  }
+
+  teams.a = fetched[0] || null;
+  teams.b = fetched[1] || null;
+
+  document.getElementById('live-ok').textContent =
+    '\u2713 ' + fetched.map(t=>t.teamName).join(' vs ');
+
+  // Show journeyman selector if any team has MNG players + multiple options
+  const jrnyHtml = buildJourneymanSelector(fetched);
+  const jrnyDiv = document.getElementById('jrny-selector');
+  if (jrnyDiv) {
+    jrnyDiv.innerHTML = jrnyHtml;
+    jrnyDiv.style.display = jrnyHtml ? 'block' : 'none';
+  }
+
+  setStatus('Building sheet\u2026');
+  await generateSheet();
+
+  btn.disabled = false;
+  btn.textContent = '\u26A1 Fetch Rosters & Generate Sheet';
+}
+
+// ════════════════════════════════════════
+// PARSE TOURPLAY ROSTER API JSON
+// ════════════════════════════════════════
+function parseTourplayAPI(data, rosterId) {
+  const teamName    = data.teamName || 'Unknown Team';
+  const race        = cleanRace(data.teamRace || '');
+  const rerolls     = String(data.reRolls ?? '');
+  const dedicatedFans = String(data.fanFactor ?? '');
+  const apothecary  = data.apothecary === true ? 'Yes'
+                    : data.necromancer === true ? 'Yes (Necromancer)'
+                    : data.apothecary === false ? 'No' : '';
+  // CTV: calculate ourselves so MNG players use journeyman (lineman) cost not full cost
+  // Tourplay's data.ctv includes MNG players at full price — we correct that here
+  const lineUps    = data.lineUps || [];
+  // Use authoritative re-roll cost from BB2025 rulebook table
+  // Fall back to Tourplay's prizeReRoll, then 60k (most common value)
+  const rerollCost = REROLL_COST[data.teamRace]
+                  || data.rosterMaster?.prizeReRoll
+                  || 60000;
+
+  // LOW COST LINEMEN special rule (Snotling, Ogre):
+  // Lineman players count as 0gp when calculating CTV
+  const lowCostLinemen = ['Snotling_BB2025', 'Ogre_BB2025'].includes(data.teamRace)
+    || (data.rosterMaster?.specialRules || []).some(r =>
+        typeof r === 'string'
+          ? r.toLowerCase().includes('low cost')
+          : (r.name||r.description||'').toLowerCase().includes('low cost')
+      );
+
+  // Journeyman cost: match MNG player's race to cheapest lineman-type for that race
+  // "Lineman-type" = the cheapest non-big-guy position a team fields as its cannon fodder
+  // Position names that indicate a lineman-equivalent role across all races:
+  // Matches cheapest lineman-type positions across all BB2025 races
+  // Deliberately excludes "Gutter Runner" (specialist) and "Fun Hoppa"/"Stilty Runna" (expensive)
+  // Uses word boundaries and specific names to avoid false matches
+  // Matches ALL 0-16 lineman positions across every BB2025 race
+  // Verified from bloodbowlbase.ru/bb2025/teams/[Race]/
+  // lineman/linewoman: most races | clanrat: Skaven | rotter: Nurgle
+  // thrall: Vampire | skeleton: Tomb Kings | zombie: Undead/Necromantic
+  // beastman: Chaos Chosen | skink: Lizardmen | goblin: Orc/Black Orc/Underworld
+  // marauder: Khorne | squire: Bretonnian | hopeful: Halfling/OWA(not eligible-0-3)
+  // hobgoblin: Chaos Dwarf | retainer: Imperial Nobility
+  const LINEMAN_PATTERN = /lineman|linewoman|marauder|rotter|thrall|clanrat|skeleton|zombie|beastman|skink|goblin|squire|hobgoblin|retainer/i;
+
+  const lineUpMasters = data.rosterMaster?.lineUpMasters || [];
+
+  // Build a map of race keyword ID -> cheapest lineman-type base cost
+  const raceLinemanCost = {};
+  for (const m of lineUpMasters) {
+    if (!m.position || !LINEMAN_PATTERN.test(m.position)) continue;
+    if (m.isBigGuy || !m.cost) continue;
+    for (const raceId of (m.race || [])) {
+      if (!raceLinemanCost[raceId] || m.cost < raceLinemanCost[raceId]) {
+        raceLinemanCost[raceId] = m.cost;
+      }
+    }
+  }
+  // Cheapest lineman across all races (fallback)
+  const cheapestLineman = Object.values(raceLinemanCost).length
+    ? Math.min(...Object.values(raceLinemanCost))
+    : 65000;
+
+  // For each MNG player, find their race-matched journeyman cost
+  function getJourneymanCost(player) {
+    // If team has a user-selected journeyman type, use that cost
+    // (injected via recalcCTV after user makes selection — not available at parse time)
+    const playerRaceIds = player.lineUpMaster?.race || [];
+    for (const raceId of playerRaceIds) {
+      if (raceLinemanCost[raceId]) return raceLinemanCost[raceId];
+    }
+    return cheapestLineman;  // fallback
+  }
+
+  // Sum player costs — MNG players replaced with race-matched journeyman cost
+  // LOW COST LINEMEN: lineman positions count as 0 in CTV
+  const playersCost = lineUps.reduce((sum, p) => {
+    if (p.canPlayNextGame === false) return sum + getJourneymanCost(p);
+    if (lowCostLinemen && LINEMAN_PATTERN.test(p.position || p.lineUpMaster?.position || ''))
+      return sum;  // counts as 0k
+    return sum + (p.cost || 0);
+  }, 0);
+
+  // Per BB2025 rulebook:
+  // TV  = player costs + re-rolls + sideline staff (NO dedicated fans, NO treasury)
+  // CTV = TV - MNG player costs + journeyman lineman cost per MNG slot
+  // fanFactor (Dedicated Fans) is explicitly excluded from TV/CTV
+  const ctvRaw = playersCost
+    + ((data.reRolls         || 0) * rerollCost)
+    + ((data.assistantCoaches|| 0) * 10000)
+    + ((data.cheerLeaders    || 0) * 10000)
+    // fanFactor NOT included — Dedicated Fans excluded per BB2025 rules p.XX
+    + (data.apothecary  ? 50000 : 0)
+    + (data.necromancer ? 50000 : 0);
+
+  // CTV breakdown components — mirrors playersCost calculation exactly
+  const mngList   = lineUps.filter(p => p.canPlayNextGame === false);
+  const availList = lineUps.filter(p => p.canPlayNextGame !== false);
+
+  // Available players cost (excluding low-cost linemen)
+  const availCost = availList.reduce((s,p) => {
+    if (lowCostLinemen && LINEMAN_PATTERN.test(p.position || p.lineUpMaster?.position || '')) return s;
+    return s + (p.cost || 0);
+  }, 0);
+
+  // Journeyman costs for MNG players (replaces their actual cost)
+  const jrnyTotal = mngList.reduce((s,p) => s + getJourneymanCost(p), 0);
+  const mngTotal  = mngList.reduce((s,p) => s + (p.cost||0), 0);
+  const mngAdj    = jrnyTotal - mngTotal;  // negative = CTV goes down
+
+  const rrCost    = (data.reRolls || 0) * rerollCost;
+  const staffCost = ((data.assistantCoaches||0) * 10000)
+                  + ((data.cheerLeaders||0) * 10000)
+                  + (data.apothecary ? 50000 : 0)
+                  + (data.necromancer ? 50000 : 0);
+
+  // Debug log — visible in browser console
+  const mngPlayers = lineUps.filter(p => p.canPlayNextGame === false);
+  const availPlayers = lineUps.filter(p => p.canPlayNextGame !== false);
+  console.log(`CTV BREAKDOWN — ${data.teamName}`);
+  console.log(`  Race: ${data.teamRace} | Re-roll cost: ${rerollCost/1000}k`);
+  console.log(`  Players available (${availPlayers.length}): ${availPlayers.reduce((s,p)=>s+(p.cost||0),0)/1000}k`);
+  mngPlayers.forEach(p => {
+    const jCost = getJourneymanCost(p);
+    console.log(`  MNG #${p.number} ${p.name} (${p.position}): ${(p.cost||0)/1000}k → journeyman ${jCost/1000}k`);
+  });
+  console.log(`  Re-rolls: ${data.reRolls||0} × ${rerollCost/1000}k = ${((data.reRolls||0)*rerollCost)/1000}k`);
+  console.log(`  Asst coaches: ${data.assistantCoaches||0} × 10k = ${(data.assistantCoaches||0)*10}k`);
+  console.log(`  Cheerleaders: ${data.cheerLeaders||0} × 10k = ${(data.cheerLeaders||0)*10}k`);
+  console.log(`  Apothecary: ${data.apothecary ? '50k' : 'No'}`);
+  console.log(`  TOTAL CTV: ${ctvRaw/1000}k`);
+
+  const ctv = ctvRaw > 0 ? (ctvRaw / 1000).toLocaleString() : (data.ctv ? String(data.ctv) : '');
+  // Treasury in gp
+  const treasury = data.treasury != null ? data.treasury.toLocaleString() + ' gp' : '';
+  const coach = data.player?.userNameToShow || data._coach || '';
+  const specialRules = [];
+
+  // fmt stat: ag/pa/av are roll-under so append +
+  const fmt = (v, plus=false) => {
+    if (v == null || v === '') return '';
+    return String(v) + (plus ? '+' : '');
+  };
+
+  // Build player rows from data.players (individual named players)
+  // Fall back to rosterMaster.lineUpMasters (position slots with quantity)
+  let players = [];
+
+  // Search ALL array-valued keys for player-like objects
+  const findPlayers = (obj) => {
+    const candidateKeys = ['lineUps','players','rosterPlayers','teamPlayers',
+                           'playerList','members','squad','lineup'];
+    for (const k of candidateKeys) {
+      if (Array.isArray(obj[k]) && obj[k].length > 0) {
+        const first = obj[k][0];
+        // A player object has a number/jersey field and position
+        if (first.number != null || first.num != null || first.positionName || first.position) {
+          return obj[k];
+        }
+      }
+    }
+    // Last resort: find any array with number-like field
+    for (const [k, v] of Object.entries(obj)) {
+      if (Array.isArray(v) && v.length > 0 && v[0].number != null) {
+        console.log(`Found players by number field under key "${k}"`);
+        return v;
+      }
+    }
+    return [];
+  };
+
+  const playerList = findPlayers(data);
+
+  if (playerList.length > 0) {
+    // Individual named players — the real roster
+    // Confirmed lineUps player structure:
+    // p.number       = jersey number
+    // p.name         = player name (e.g. "Romdrok Void Sorrow")
+    // p.position     = position string (e.g. "Big Un Blocker") — TOP LEVEL
+    // p.ma/st/ag/pa/av = current stats (top level, already adjusted for level-ups)
+    // p.lineUpMaster.skills[] = base position skills {skillMaster:{name, isElite}}
+    // p.skills[]     = earned skills {skillMaster:{name}, isElite}
+    // p.skills[].isElite = true for elite skills
+
+    players = playerList.map(p => {
+      const num      = String(p.number ?? '?');
+      const name     = p.name || '';
+      const position = p.position || p.lineUpMaster?.position || '';
+      const stats = [fmt(p.ma), fmt(p.st), fmt(p.ag,true), fmt(p.pa,true), fmt(p.av,true)];
+
+      // Status flags
+      const canPlay       = p.canPlayNextGame !== false;
+      const missing       = !canPlay;
+      const nigglingCount = p.nigglingInjuries || 0;
+      const niggling      = nigglingCount > 0;
+
+      // Base skills (position defaults — not earned)
+      const baseSkillNames = new Set();
+      const baseSkills = (p.lineUpMaster?.skills || [])
+        .filter(s => !s.isHidden)
+        .map(s => {
+          const n = s.skillMaster?.name || '';
+          baseSkillNames.add(n);
+          return { name: n, earned: false, attr: s.skillAttributeMaster?.value || '' };
+        });
+
+      // Earned skills (SPP advancements) — bold on print
+      const earnedSkills = (p.skills || [])
+        .filter(s => !s.isHidden)
+        .map(s => ({
+          name:  normalizeSkillName(s.skillMaster?.name || ''),
+          earned: true,
+          elite: s.isElite || false,
+          attr:  s.skillAttributeMaster?.value || '',
+        }));
+
+      // Combine, deduplicate — filter empty names
+      const seen = new Set();
+      const allSkills = [...baseSkills, ...earnedSkills].filter(s => {
+        if (!s.name || !s.name.trim() || seen.has(s.name)) return false;
+        seen.add(s.name); return true;
+      });
+
+      // SPP and career stats
+      const spp       = p.starPlayerPoints ?? 0;       // current SPP toward next level
+      const sppNext   = p.totalStarPlayerPoints != null  // next threshold from level
+                        ? (p.pendingImprovements > 0 ? '!' : '')  // pending improvement flag
+                        : '';
+      const cas  = p.totalCasualties   || 0;
+      const tds  = p.totalTouchdowns   || 0;
+      const mvp  = p.totalMVP          || 0;
+      const comp = p.totalPass         || 0;
+      const level = p.level || 0;  // 1=Rookie, 2=Experienced, 3=Veteran, 4=Emerging Star, 5=Star, 6=Super Star, 7=Legend
+      const levelNames = ['','Rookie','Experienced','Veteran','Emerging Star','Star','Super Star','Legend'];
+      const levelName = levelNames[level] || '';
+      const hasPending = (p.pendingImprovements || 0) > 0;
+
+      const costVal = p.cost || p.lineUpMaster?.cost || 0;
+      const cost = costVal ? (costVal/1000)+'k' : '';
+      return { num, name, position, stats, allSkills, missing, niggling, nigglingCount, cost,
+               spp, cas, tds, mvp, comp, levelName, hasPending };
+    }).sort((a,b) => parseInt(a.num) - parseInt(b.num));
+
+  } else if (data.rosterMaster?.lineUpMasters) {
+    // Fallback: position template slots — only include slots with quantity > 0
+    // This won't show earned skills but at least shows correct positions
+    console.warn('Using lineUpMasters fallback — individual player data not found');
+    let n = 1;
+    for (const slot of data.rosterMaster.lineUpMasters) {
+      if (!slot.quantity) continue;  // skip empty slots
+      const position = slot.position || '';
+      const skills = (slot.skills || [])
+        .map(s => s.skillMaster?.name || s.name || '')
+        .filter(Boolean);
+      const stats = [
+        fmt(slot.ma), fmt(slot.st), fmt(slot.ag, true),
+        fmt(slot.pa, true), fmt(slot.av, true)
+      ];
+      for (let i = 0; i < slot.quantity; i++) {
+        players.push({ num: String(n++), position, stats, skills });
+      }
+    }
+  }
+
+  // Store raw attr in usedSkills key — resolve at render time
+  const usedSkills = [...new Set(
+    players.flatMap(p => p.allSkills
+      .filter(s => s.name && s.name.trim())
+      .map(s => s.attr ? s.name+'|'+s.attr : s.name))
+  )].filter(Boolean);
+
+  // Find all valid journeyman options — use JOURNEYMAN_OPTIONS table as primary source
+  // (authoritative, verified from bloodbowlbase.ru)
+  // Fall back to parsing rosterMaster.lineUpMasters if race not in table
+  let journeymanOptions = [];
+  if (JOURNEYMAN_OPTIONS[data.teamRace]) {
+    journeymanOptions = JOURNEYMAN_OPTIONS[data.teamRace].map(([position, cost]) => ({ position, cost }));
+  } else {
+    // Fallback: parse from API data
+    journeymanOptions = (data.rosterMaster?.lineUpMasters || [])
+      .filter(m => m.position && m.cost && !m.isBigGuy
+                && LINEMAN_PATTERN.test(m.position)
+                && (!m.maxQuantity || m.maxQuantity >= 16))
+      .map(m => ({ position: m.position, cost: m.cost }))
+      .filter((m, i, arr) => arr.findIndex(x => x.position === m.position) === i)
+      .sort((a, b) => a.cost - b.cost);
+  }
+
+  return {
+    teamName, race, ctv, treasury, coach, rerolls, dedicatedFans, apothecary,
+    specialRules, players, usedSkills, source: 'api',
+    ctvBreakdown: { availCost, rrCost, staffCost, mngAdj, mngList,
+                    mngTotal, jrnyTotal,
+                    rerolls: data.reRolls||0, rerollCost, lowCostLinemen },
+    journeymanOptions,
+    // selectedJourneyman will be set by UI before sheet generation
+    selectedJourneymanCost: journeymanOptions.length > 0 ? journeymanOptions[0].cost : null,
+  };
+}
+
+// ════════════════════════════════════════
+// SKILL DATABASE (bbtc.pl)
+// ════════════════════════════════════════
+async function loadSkillDB() {
+  // Primary: bloodbowlbase.ru — has complete BB2025 skill list including all traits
+  // Fallback: bbtc.pl
+  const BBB_URL  = 'https://bloodbowlbase.ru/bb2025/core_rules/skills_and_traits/';
+  const BBTC_URL = 'https://bbtc.pl/resources/bb2025/skills';
+  const URLS = [
+    CF_WORKER + '/proxy?url=' + encodeURIComponent(BBB_URL),
+    BBB_URL,
+    CF_WORKER + '/proxy?url=' + encodeURIComponent(BBTC_URL),
+    BBTC_URL,
+  ];
+  for (const url of URLS) {
+    try {
+      const r = await fetch(url, {signal: AbortSignal.timeout(12000)});
+      if (r.ok) {
+        const text = await r.text();
+        const parsed = parseSkillPage(text);
+        if (Object.keys(parsed).length > 20) {
+          skillDB = parsed;
+          console.log('Skill DB loaded from:', url, '— skills:', Object.keys(skillDB).length);
+          return;
+        }
+      }
+    } catch(e) { console.warn('Skill URL failed:', url, e.message); }
+  }
+  console.warn('Could not load skill DB');
+}
+function parseSkillPage(html) {
+  const db = {};
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  // Try bloodbowlbase.ru format: h4 headings like "CATCH (ACTIVE)" or "HATRED (X)* (PASSIVE)"
+  // Category is determined by the preceding h3 section header
+  let currentCat = 'General';
+  doc.querySelectorAll('h3, h4').forEach(el => {
+    if (el.tagName === 'H3') {
+      currentCat = el.textContent.replace(/[!]/g,'').trim();
+      return;
+    }
+    const raw = el.textContent.trim();
+    // Match: "SKILL NAME* (ACTIVE)" or "SKILL NAME (X)* (PASSIVE)"
+    const m = raw.match(/^(.+?)\s*\((ACTIVE|PASSIVE)\)\s*$/i);
+    if (!m) return;
+    let rawName = m[1].trim();
+    const type = m[2].toUpperCase();
+    // Elite: bloodbowlbase doesn't flag elite in headings; we check description
+    // Compulsory: marked with * in name
+    const compulsory = rawName.includes('*');
+    rawName = rawName.replace(/\*/g,'').trim();
+    // Clean parameterised names: "HATRED (X)" -> "Hatred", keep for display
+    const displayName = rawName.split('(')[0].trim();
+    displayName_title = displayName.charAt(0).toUpperCase() + displayName.slice(1).toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+    
+    // Get description from following paragraphs until next heading
+    const parts = [];
+    let sib = el.nextElementSibling;
+    while (sib && !['H2','H3','H4'].includes(sib.tagName)) {
+      const t = sib.textContent.trim();
+      if (t && !t.startsWith('For example') && !t.startsWith('Here,')) parts.push(t);
+      sib = sib.nextElementSibling;
+    }
+    const desc = parts.join(' ').replace(/\s+/g,' ').trim();
+    if (!desc) return;
+
+    // Check if elite (description mentions "elite" or Elite symbol context)
+    const elite = false; // bloodbowlbase doesn't mark elite in text
+
+    const key = nk(displayName);
+    if (key && !db[key]) {
+      db[key] = {
+        name: displayName.charAt(0).toUpperCase() + displayName.slice(1).toLowerCase()
+          .replace(/\b\w/g, c => c.toUpperCase()),
+        type, cat: currentCat, elite, desc
+      };
+    }
+  });
+
+  // Also try bbtc.pl format: h2 headings like "Skill Name (ACTIVE) - Category"
+  if (Object.keys(db).length < 10) {
+    doc.querySelectorAll('h2').forEach(h2 => {
+      const raw = h2.textContent.trim();
+      const m = raw.match(/^(.+?)\s*\((ACTIVE|PASSIVE)(?:,\s*ELITE)?\)\s*[-\u2013]\s*(.+)$/);
+      if (!m) return;
+      const [,name,type,cat] = m; const elite = raw.includes('ELITE');
+      const parts = []; let sib = h2.nextElementSibling;
+      while (sib && sib.tagName !== 'H2') {
+        if (sib.textContent.trim()) parts.push(sib.textContent.trim());
+        sib = sib.nextElementSibling;
+      }
+      const key = nk(name.trim());
+      if (key && !db[key]) db[key] = {name:name.trim(),type,cat:cat.trim(),elite,desc:parts.join(' ').replace(/\s+/g,' ').trim()};
+    });
+  }
+
+  return db;
+}
+function normalizeSkillName(name) {
+  // Fix known Tourplay API typos/variations
+  const fixes = {
+    'Eye Gunge': 'Eye Gouge',
+    'Pogo Stick': 'Pogo',
+    'Pogo stick': 'Pogo',
+  };
+  return fixes[name] || name;
+}
+function nk(s){return s.replace(/\*/g,'').replace(/\s*\(\d[\d+]*\)\s*/g,'').toLowerCase().replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();}
+
+// Levenshtein distance — counts single-char edits between two strings
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_,i) => Array.from({length: n+1}, (_,j) => i||j));
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]
+      : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function lookupSkill(name) {
+  const key = nk(name);
+  // 1. Exact match
+  if (skillDB[key]) return skillDB[key];
+  // 2. Prefix match (e.g. "Loner" matches "Loner (4+)")
+  for (const [k,v] of Object.entries(skillDB))
+    if (key.startsWith(k) || k.startsWith(key)) return v;
+  // 3. Fuzzy match — allow up to 2 edit distance for typos
+  // e.g. "Eye Gunge" -> "Eye Gouge" (1 edit), "Pogo Stick" -> "Pogo" (prefix)
+  if (key.length >= 4) {
+    let best = null, bestDist = 3;  // max 2 edits allowed
+    for (const [k,v] of Object.entries(skillDB)) {
+      // Only compare if lengths are reasonably close
+      if (Math.abs(key.length - k.length) > 3) continue;
+      const dist = levenshtein(key, k);
+      if (dist < bestDist) { bestDist = dist; best = v; }
+    }
+    if (best) return best;
+  }
+  return null;
+}
+
+// ════════════════════════════════════════
+// PDF PARSING
+// ════════════════════════════════════════
+async function isImagePDF(pdf){const pg=await pdf.getPage(1);const ct=await pg.getTextContent();return ct.items.map(i=>i.str).join('').trim().length<20;}
+
+async function parseTourplayPDF(pdf){
+  const pg=await pdf.getPage(1);const ct=await pg.getTextContent();
+  const words=ct.items.filter(i=>i.str&&i.str.trim()).map(i=>({text:i.str.trim(),x0:i.transform[4],top:-i.transform[5]}));
+  words.sort((a,b)=>a.top-b.top||a.x0-b.x0);
+  const rows=[];let cr=[],cy=null;
+  for(const w of words){const y=Math.round(w.top);if(cy===null||Math.abs(y-cy)>6){if(cr.length)rows.push(cr);cr=[w];cy=y;}else cr.push(w);}
+  if(cr.length)rows.push(cr);
+  const rt=row=>row.map(w=>w.text).join(' ');
+  let hi=-1,SX=283,NX=464;
+  for(let i=0;i<rows.length;i++){const t=rt(rows[i]);if(t.includes('No.')&&t.includes('SKILLS')&&t.includes('TRAITS')){hi=i;const sw=rows[i].find(w=>w.text==='SKILLS');const nw=rows[i].find(w=>w.text==='NI');if(sw)SX=sw.x0;if(nw)NX=nw.x0;break;}}
+  if(hi===-1)throw new Error('IMAGE_PDF');
+  const PM=SX-120;
+  const dd=s=>{let o='',i=0;while(i<s.length){o+=s[i];i+=(i+1<s.length&&s[i]===s[i+1])?2:1;}return o.trim();};
+  const tt=s=>s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');
+  const teamName=tt(dd(rt(rows[0]||[])).replace(/^[A-Z]{1,2}\s+/,'').trim());
+  const r2=rt(rows[2]||[]);
+  const ctvM=r2.match(/([\d,]+)\s*CTV/i);const ctv=ctvM?ctvM[1]:'';
+  const race=tt(dd(r2.replace(/([\d,]+)\s*CTV\s*/i,'').trim()));
+  let coach='',rerolls='',dedicatedFans='',apothecary='';const specialRules=[];let inSide=false;
+  for(let i=hi+1;i<rows.length;i++){
+    const t=rt(rows[i]);
+    if(/SIDELINE/i.test(t)&&i>hi+3){inSide=true;continue;}
+    if(!inSide)continue;
+    if(/RRooookkiiee|Rookie\s*[^\w]/.test(t)&&!coach){const cw=rows[i].filter(w=>w.x0<PM+50&&!/^[·R\d]/.test(w.text)&&w.text.length>1);if(cw.length)coach=dd(cw.map(w=>w.text).join(' '));}
+    if(/Re.?rolls/i.test(t)&&!rerolls){for(const r2 of[rows[i],rows[i+1]||[]]){const n=r2.find(w=>/^\d$/.test(w.text)&&w.x0>300);if(n){rerolls=n.text;break;}}}
+    if(/Dedicated.{0,10}fans/i.test(t)){const n=rows[i].filter(w=>/^\d$/.test(w.text));if(n.length)dedicatedFans=n[n.length-1].text;}
+    if(/Apothecary\s*Yes/i.test(t))apothecary='Yes';else if(/Apothecary\s*No/i.test(t))apothecary='No';
+    if(/Necromancer\s*Yes/i.test(t))apothecary='Yes (Necromancer)';
+    for(const sr of["Brawlin' Brutes",'Badlands Brawl','Chaos Clash','Sylvanian Spotlight','Team Captain','Lustrian Superleague'])
+      if(t.toLowerCase().includes(sr.toLowerCase())&&!specialRules.includes(sr))specialRules.push(sr);
+  }
+  const cs=s=>s.replace(/(.)\1{2,}/g,'$1');
+  const players=[];let cur=null,pend=[];
+  for(let i=hi+1;i<rows.length;i++){
+    const row=rows[i],t=rt(row);
+    if(/SIDELINE/i.test(t)&&i>hi+3)break;
+    const pw=row.filter(w=>w.x0<PM),sw=row.filter(w=>w.x0>=PM&&w.x0<SX),kw=row.filter(w=>w.x0>=SX&&w.x0<NX);
+    const pt=pw.map(w=>w.text).join(' ').trim(),kt=kw.map(w=>w.text).join(' ').trim();
+    const pm=pt.match(/^#(\d+)\s*(.*)/);
+    if(pm){if(cur)players.push(fin(cur));const num=pm[1],pos=pm[2].replace(/\d{3,}.*$/,'').trim();const stats=[];for(const w of sw){const c=cs(w.text);if(/^\d+\+?$/.test(c)&&stats.length<5)stats.push(c);}cur={num,position:pos,stats,raw:[...pend,kt].filter(Boolean).join(' ')};pend=[];}
+    else if(/^\(/.test(pt)){}
+    else if(!pt&&kt){if(cur)cur.raw+=' '+kt;else pend.push(kt);}
+    else if(/\bMA\b.*\bST\b/.test(t)&&kt){pend.push(kt);}
+    else if(kt&&cur){cur.raw+=' '+kt;}
+  }
+  if(cur)players.push(fin(cur));
+  const usedSkills=[...new Set(players.flatMap(p=>p.skills))];
+  return{teamName,race,ctv,coach,rerolls,dedicatedFans,apothecary,specialRules,players,usedSkills,source:'pdf'};
+}
+function fin(p){
+  let r=p.raw;
+  r=r.replace(/[·\u2756\u2605\u2295\u2606]\s*\S*/g,'').replace(/\bx\d+\b/g,'').replace(/\b\d+\/\d+\b/g,'');
+  r=r.replace(/Insigni.cant/g,'Insignificant').replace(/\s+/g,' ').trim().replace(/^[,;]+|[,;]+$/g,'');
+  const skills=r.split(/,(?![^(]*\))/).map(s=>s.trim().replace(/^[,;.\s]+|[,;.\s]+$/g,'')).filter(s=>s.length>1&&!/^[\d·.\-*]+$/.test(s));
+  return{...p,skills,raw:undefined};
+}
+
+// ════════════════════════════════════════
+// PDF UI
+// ════════════════════════════════════════
+function onDragOver(e,s){e.preventDefault();document.getElementById('dz-'+s).classList.add('over');}
+function onDragLeave(s){document.getElementById('dz-'+s).classList.remove('over');}
+function onDrop(e,s){e.preventDefault();onDragLeave(s);const f=e.dataTransfer.files[0];if(f)handleFile(f,s);}
+function onFileSelect(e,s){if(e.target.files[0])handleFile(e.target.files[0],s);}
+async function handleFile(file,slot){
+  if(!file.name.toLowerCase().endsWith('.pdf')){setErr(slot,'Please select a PDF file.');return;}
+  setErr(slot,'');setStatus('Reading PDF\u2026');
+  try{
+    const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    if(await isImagePDF(pdf)){setErr(slot,'\u26A0 Made with "Microsoft Print to PDF".\nUse Tourplay Print button \u2192 "Save to PDF" instead.');teams[slot]=null;showLoaded(slot,null);setStatus('');updateBtn();return;}
+    setStatus('Parsing roster\u2026');
+    const data=await parseTourplayPDF(pdf);data.fileName=file.name;
+    teams[slot]=data;showLoaded(slot,data);
+    setStatus(teams.a||teams.b?'Ready':'');
+  }catch(err){
+    setErr(slot,err.message==='IMAGE_PDF'?'\u26A0 Roster not found. Use "Save to PDF" export.':'Parse error: '+err.message);
+    teams[slot]=null;showLoaded(slot,null);setStatus('');console.error(err);
+  }
+  updateBtn();
+}
+function showLoaded(slot,data){
+  const dz=document.getElementById('dz-'+slot),ld=document.getElementById('loaded-'+slot),clr=document.getElementById('clear-'+slot);
+  if(data){document.getElementById('ln-'+slot).textContent=data.teamName||'(unknown)';document.getElementById('ls-'+slot).textContent=(data.race||'')+' \u00B7 '+data.players.length+' players'+(data.ctv?' \u00B7 CTV '+data.ctv:'');dz.classList.add('hide');ld.classList.add('show');clr.classList.add('show');}
+  else{dz.classList.remove('hide');ld.classList.remove('show');clr.classList.remove('show');}
+}
+function clearSlot(slot){teams[slot]=null;document.getElementById('fi-'+slot).value='';setErr(slot,'');showLoaded(slot,null);updateBtn();}
+function updateBtn(){}  // PDF upload removed
+async function generateFromPDF_unused(){
+  setStatus('Loading skill database\u2026');document.getElementById('btn-gen').disabled=true;
+  if(Object.keys(skillDB).length===0)await loadSkillDB();
+  await generateSheet();
+}
+
+// ════════════════════════════════════════
+// SHEET GENERATION
+// ════════════════════════════════════════
+async function generateSheet(){
+  setStatus('Building sheet\u2026');
+  const output=document.getElementById('output');output.innerHTML='';
+  const active=[teams.a,teams.b].filter(Boolean);
+  if(!active.length){setStatus('No team data.');return;}
+  document.getElementById('tb-title').textContent=active.map(t=>t.teamName).join(' vs ');
+  for(const team of active)output.innerHTML+=buildTeamHTML(team);
+  document.getElementById('home').style.display='none';
+  document.getElementById('toolbar').classList.add('show');
+  output.classList.add('show');setStatus('');
+}
+
+function buildTeamHTML(t){
+  return '<div class="page-label">'+esc(t.teamName)+' \u2014 '+esc(t.race)+'</div>'+
+    '<div class="sheet sheet-roster">'+buildRosterPage(t)+'</div>'+
+    '<div class="sheet sheet-skills">'+buildSkillsSection(t)+'</div>';
+}
+
+function buildRosterPage(t){
+  const srcBadge=t.source==='api'
+    ?'<span style="font-size:6pt;background:#444;color:#fff;padding:1px 5px;border-radius:2px;margin-left:5px;font-family:Oswald,sans-serif;font-weight:700;letter-spacing:1px">LIVE</span>':'';
+
+  // Header
+  const hdr =
+    '<div class="team-hdr">'+
+      '<div>'+
+        '<div class="team-name">'+esc(t.teamName)+srcBadge+'</div>'+
+        '<div class="team-race">'+esc(t.race)+'</div>'+
+      '</div>'+
+      '<div class="team-meta">'+
+        (t.coach?'<div><span class="meta-lbl">Coach:</span> '+esc(t.coach)+'</div>':'')+
+        (t.ctv?'<div><span class="meta-lbl">CTV:</span> '+esc(t.ctv)+'k</div>':'')+
+        '<div><span class="meta-lbl">Ruleset:</span> BB2025</div>'+
+      '</div>'+
+    '</div>';
+
+  // Sideline bar with treasury
+  const sideItems = [
+    t.apothecary    ? ['Apothecary', t.apothecary]        : null,
+    t.rerolls       ? ['Re-rolls',   t.rerolls]            : null,
+    t.dedicatedFans ? ['Fans',       t.dedicatedFans]      : null,
+    t.ctv           ? ['CTV',        t.ctv + 'k']          : null,
+    t.treasury      ? ['Treasury',   t.treasury]           : null,
+    ['Players', t.players.length],
+  ].filter(Boolean);
+
+  const sideBar =
+    '<div class="side-bar">'+
+      sideItems.map(([k,v])=>
+        '<div class="side-item"><span class="side-k">'+esc(String(k))+'</span>'+
+        '<span class="side-v">'+esc(String(v))+'</span></div>'
+      ).join('')+
+      (t.specialRules.length
+        ? '<div class="side-item side-rules"><span class="side-k">Rules</span>'+
+          '<span class="side-v" style="font-size:5.5pt">'+t.specialRules.map(r=>esc(r)).join(', ')+'</span></div>'
+        : '')+
+    '</div>';
+
+  // Roster rows — earned skills BOLD, missing/niggling flagged
+  const rows = t.players.map(p => {
+    const [ma,st,ag,pa,av] = p.stats;
+
+    // Build skills HTML: earned (SPP) = bold, base = normal
+    let skHtml;
+    if (!p.allSkills || !p.allSkills.length) {
+      skHtml = '&mdash;';
+    } else {
+      skHtml = p.allSkills.map(s => {
+        const resolvedAttr = s.attr ? resolveAttr(s.attr) : '';
+        const label = resolvedAttr ? esc(s.name)+' ('+esc(resolvedAttr)+')' : esc(s.name);
+        return s.earned ? '<strong>'+label+'</strong>' : label;
+      }).join(', ');
+    }
+
+    // Status badges
+    let badges = '';
+    if (p.missing)  badges += '<span class="badge-miss">OUT</span>';
+    if (p.niggling) badges += '<span class="badge-ni">NI×'+p.nigglingCount+'</span>';
+
+    // Player name line
+    const plrName = p.name ? '<span class="plr-name">('+esc(p.name)+')</span>' : '';
+
+    // Mini-stat line: SPP / level / CAS / TD — only show non-zero
+    const statParts = [];
+    if (p.spp || p.levelName) {
+      const lvlBadge = p.hasPending
+        ? '<span class="badge-spp pending">★SPP:'+p.spp+'</span>'
+        : '<span class="badge-spp">SPP:'+p.spp+'</span>';
+      statParts.push(lvlBadge);
+      if (p.levelName && p.levelName !== 'Rookie')
+        statParts.push('<span class="stat-lvl">'+esc(p.levelName)+'</span>');
+    }
+    if (p.cas)  statParts.push('<span class="stat-cas">CAS:'+p.cas+'</span>');
+    if (p.tds)  statParts.push('<span class="stat-td">TD:'+p.tds+'</span>');
+    if (p.mvp)  statParts.push('<span class="stat-mvp">MVP:'+p.mvp+'</span>');
+    if (p.comp) statParts.push('<span class="stat-comp">COMP:'+p.comp+'</span>');
+    const miniStats = statParts.length
+      ? '<div class="mini-stats">'+statParts.join('')+'</div>'
+      : '';
+    const rowStyle = p.missing ? ' class="row-miss"' : '';
+
+    return '<tr'+rowStyle+'>'+
+      '<td class="c">'+esc(p.num)+'</td>'+
+      '<td><span class="pos-name">'+esc(p.position)+'</span>'+plrName+badges+miniStats+'</td>'+
+      '<td class="c">'+esc(ma||'')+'</td>'+
+      '<td class="c">'+esc(st||'')+'</td>'+
+      '<td class="c">'+esc(ag||'')+'</td>'+
+      '<td class="c">'+esc(pa||'')+'</td>'+
+      '<td class="c">'+esc(av||'')+'</td>'+
+      '<td class="sk-cell">'+skHtml+'</td>'+
+      '<td class="c cost-cell">'+esc(p.cost||'')+'</td>'+
+    '</tr>';
+  }).join('');
+
+  // CTV breakdown line for print sheet
+  let ctvBreakLine = '';
+  if (t.ctvBreakdown) {
+    const b = t.ctvBreakdown;
+    const parts = [];
+    parts.push('Players <strong>' + (b.availCost/1000).toLocaleString() + 'k</strong>');
+    if (b.lowCostLinemen) parts.push('<em style="font-size:4.5pt">(linemen free)</em>');
+    if (b.rrCost) parts.push(b.rerolls + '&times;RR@' + (b.rerollCost/1000) + 'k = <strong>' + (b.rrCost/1000) + 'k</strong>');
+    if (b.staffCost) parts.push('Staff <strong>' + (b.staffCost/1000) + 'k</strong>');
+    if (b.mngList && b.mngList.length) {
+      // Show both steps: subtract MNG players, add journeymen
+      const mngOut  = -b.mngTotal;   // negative (removing players)
+      const jrnyIn  =  b.jrnyTotal;  // positive (adding journeymen)
+      parts.push(
+        'MNG(' + b.mngList.length + ') <strong style="color:#555">' + (mngOut/1000) + 'k</strong>'
+        + ' +Jrny <strong>' + (jrnyIn/1000) + 'k</strong>'
+      );
+    }
+    ctvBreakLine = '<div class="ctv-break"><strong>CTV CALC:</strong> ' + parts.join(' + ') + ' = <strong>' + t.ctv + 'k</strong></div>';
+  }
+
+  const table =
+    '<div class="roster-title">Players</div>'+
+    '<table class="roster">'+
+      '<thead><tr>'+
+        '<th>#</th><th class="l">Position</th>'+
+        '<th>MA</th><th>ST</th><th>AG</th><th>PA</th><th>AV</th>'+
+        '<th class="l">Skills &amp; Traits</th>'+
+        '<th>Cost</th>'+
+      '</tr></thead>'+
+      '<tbody>'+rows+'</tbody>'+
+    '</table>'+
+    '<div class="kw-line"><strong>*</strong> = Must always use when applicable</div>';
+
+  return hdr + sideBar + ctvBreakLine + table;
+}
+function buildSkillsSection(t){
+  const sorted=[...new Set(t.usedSkills)].sort((a,b)=>nk(a).localeCompare(nk(b)));
+  const items=sorted.map(rawKey=>{
+    // rawKey format: "SkillName" or "SkillName|attrId"
+    const pipeIdx   = rawKey.indexOf('|');
+    const baseName  = pipeIdx >= 0 ? rawKey.slice(0, pipeIdx) : rawKey.replace(/\s*\([^)]*\)\s*/g,'').trim();
+    const rawAttr   = pipeIdx >= 0 ? rawKey.slice(pipeIdx + 1) : '';
+    const resolvedAttr = resolveAttr(rawAttr);
+    // Display name: e.g. "Hatred (Human)" or "Loner (4+)"
+    const name = resolvedAttr ? baseName + ' (' + resolvedAttr + ')' : baseName;
+    const info = lookupSkill(baseName) || lookupSkill(name);
+    if (!info || !info.name) {
+      // Skill not in DB — show name with placeholder
+      return '<div class="sk"><span class="sk-name">'+esc(name)+'</span> '+
+        '<span class="sk-type">(ACTIVE):</span> <em style="color:#999">See BB2025 rulebook.</em></div>';
+    }
+    // Compulsory traits marked with *
+    const isTrait    = info.cat && info.cat.toLowerCase().includes('trait');
+    const compulsory = isTrait ? '*' : '';
+    const elite      = info.elite ? '<span class="sk-elite">ELITE</span>' : '';
+    const typeStr    = info.type === 'ACTIVE' ? 'ACTIVE' : 'PASSIVE';
+    // Display name: use original (preserves "Hatred (Human)", "Loner (4+)") 
+    const displayName = name.replace(/\*/g, '').trim();
+    return '<div class="sk">'+
+      '<span class="sk-name">'+esc(displayName)+compulsory+' '+elite+'</span> '+
+      '<span class="sk-type">('+typeStr+'):</span> '+
+      esc(info.desc)+
+    '</div>';
+  }).join('');
+
+  // Header matching BBTC style
+  const hdr =
+    '<div class="skills-page-hdr">'+
+      '<div class="skills-team-name">'+esc(t.teamName)+'</div>'+
+      '<div class="skills-team-sub">'+esc(t.race)+' &nbsp;&middot;&nbsp; '+
+        '<span class="sk-elite">ELITE</span> = costs extra SPP &nbsp;&middot;&nbsp; * = must always use'+
+      '</div>'+
+    '</div>';
+
+  return hdr + '<div class="skills-list">'+(items||'<em style="color:#999">No skills found</em>')+'</div>';
+}
+
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setStatus(msg){const el=document.getElementById('gen-status');if(el)el.textContent=msg;}
+function setErr(slot,msg){document.getElementById('err-'+slot).textContent=msg;}
+function goHome(){
+  document.getElementById('home').style.display='flex';
+  document.getElementById('toolbar').classList.remove('show');
+  document.getElementById('output').classList.remove('show');
+  document.getElementById('output').innerHTML='';
+  teams.a=null;teams.b=null;
+  document.getElementById('sel-a').value='';
+  document.getElementById('sel-b').value='';
+  document.getElementById('live-ok').textContent='';
+  document.getElementById('live-err').textContent='';
+  document.getElementById('fetch-btn').disabled=!document.getElementById('sel-a').value;
+  setStatus('');
+}
+
+// ════════════════════════════════════════
+// JOURNEYMAN SELECTOR
+// ════════════════════════════════════════
+function buildJourneymanSelector(fetchedTeams) {
+  // Find teams with MNG players AND multiple journeyman options
+  const teamsNeedingChoice = fetchedTeams.filter(t =>
+    t.players.some(p => p.missing) &&
+    t.journeymanOptions && t.journeymanOptions.length > 1
+  );
+  if (!teamsNeedingChoice.length) return '';
+
+  return teamsNeedingChoice.map(t => {
+    const mngCount = t.players.filter(p => p.missing).length;
+    const optionsHtml = t.journeymanOptions.map((opt, i) =>
+      `<button class="jrny-btn${i===0?' selected':''}"
+        onclick="selectJourneyman('${t.teamName}',${opt.cost},this)"
+        data-team="${esc(t.teamName)}" data-cost="${opt.cost}">
+        ${esc(opt.position)}<span class="jrny-cost">${opt.cost/1000}k</span>
+      </button>`
+    ).join('');
+    return `<div class="jrny-wrap">
+      <div class="jrny-title">&#9876; Journeyman Selection</div>
+      <div class="jrny-team"><strong>${esc(t.teamName)}</strong> — ${mngCount} player${mngCount>1?'s':''} missing, select journeyman type:</div>
+      <div class="jrny-options" id="jrny-${esc(t.teamName)}">${optionsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectJourneyman(teamName, cost, btn) {
+  // Update button states
+  const container = btn.closest('.jrny-options');
+  container.querySelectorAll('.jrny-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Update team's selected journeyman cost
+  const team = [teams.a, teams.b].find(t => t && t.teamName === teamName);
+  if (team) {
+    team.selectedJourneymanCost = cost;
+    // Recalculate CTV with new journeyman cost
+    recalcCTV(team);
+  }
+}
+
+function recalcCTV(team) {
+  // Recalculate CTV using the selected journeyman cost for all MNG players
+  const jCost = team.selectedJourneymanCost;
+  const b = team.ctvBreakdown;
+  if (!b) return;
+  const mngCount = b.mngList.length;
+  const newMngAdj = (jCost * mngCount) - b.mngList.reduce((s,p) => s+(p.cost||0), 0);
+  const newCtvRaw = b.availCost + (jCost * mngCount) + b.rrCost + b.staffCost;
+  team.ctv = (newCtvRaw / 1000).toLocaleString();
+  b.mngAdj = newMngAdj;
+  b.jCost  = jCost;
+}
+
+// ════════════════════════════════════════
+// FIXTURE BROWSER
+// ════════════════════════════════════════
+let selectedDiv   = '';
+let selectedRound = 0;
+let selectedMatchHomeId = '';
+let selectedMatchAwayId = '';
+
+function renderFixtureBrowser() {
+  const fixtures = parseFixtures(fixturesData);
+  if (!fixtures.length) return;
+
+  // Get unique divisions and rounds
+  const divisions = [...new Set(fixtures.map(f => f.division).filter(Boolean))].sort();
+  const allRounds = [...new Set(fixtures.map(f => f.round))].sort((a,b)=>a-b);
+
+  // Default to first division and most recent incomplete round
+  if (!selectedDiv) selectedDiv = divisions[0] || '';
+  if (!selectedRound) {
+    const incomplete = allRounds.find(r =>
+      fixtures.filter(f => f.round===r && (!f.division || f.division===selectedDiv))
+               .some(f => !f.played)
+    );
+    selectedRound = incomplete || allRounds[allRounds.length-1] || 1;
+  }
+
+  // Division pills
+  const divPills = document.getElementById('div-pills');
+  divPills.innerHTML = divisions.map(d =>
+    `<button class="fix-pill${d===selectedDiv?' active':''}" onclick="selectDiv('${d}')">${d}</button>`
+  ).join('');
+
+  // Round pills
+  const roundPills = document.getElementById('round-pills');
+  roundPills.innerHTML = allRounds.map(r =>
+    `<button class="fix-pill${r===selectedRound?' active':''}" onclick="selectRound(${r})">R${r}</button>`
+  ).join('');
+
+  // Fixtures for selected div + round
+  const shown = fixtures.filter(f =>
+    f.round === selectedRound &&
+    (!f.division || !selectedDiv || f.division === selectedDiv)
+  );
+
+  const list = document.getElementById('fixture-list');
+  if (!shown.length) {
+    list.innerHTML = '<div style="font-size:8pt;color:var(--text-dim);padding:8px 0">No fixtures found for this round.</div>';
+    return;
+  }
+
+  list.innerHTML = '<div class="fix-list">' +
+    shown.map(f => {
+      const isSelected = f.homeId===selectedMatchHomeId && f.awayId===selectedMatchAwayId;
+      const scoreHtml = f.played
+        ? `<div class="fix-score">${f.scoreHome} : ${f.scoreAway}</div>`
+        : `<div class="fix-score unplayed">VS</div>`;
+      return `<div class="fix-match${f.played?' played':''}${isSelected?' selected':''}"
+        onclick="selectMatch('${f.homeId}','${f.awayId}')">
+        <div class="fix-team">
+          <div>${esc(f.homeName)}</div>
+          <div class="fix-team-sub">${esc(f.homeRace)}${f.homeCoach?' · '+esc(f.homeCoach):''}</div>
+        </div>
+        ${scoreHtml}
+        <div class="fix-team right">
+          <div>${esc(f.awayName)}</div>
+          <div class="fix-team-sub">${esc(f.awayRace)}${f.awayCoach?' · '+esc(f.awayCoach):''}</div>
+        </div>
+      </div>`;
+    }).join('') +
+    `<button class="fix-fetch-btn" id="fix-fetch-btn"
+      ${selectedMatchHomeId?'':'disabled'}
+      onclick="fetchFixtureMatch()">
+      &#8987; Fetch Rosters &amp; Generate Sheet
+    </button>` +
+  '</div>';
+}
+
+function selectDiv(div) {
+  selectedDiv = div;
+  selectedMatchHomeId = '';
+  selectedMatchAwayId = '';
+  renderFixtureBrowser();
+}
+
+function selectRound(round) {
+  selectedRound = round;
+  selectedMatchHomeId = '';
+  selectedMatchAwayId = '';
+  renderFixtureBrowser();
+}
+
+function selectMatch(homeId, awayId) {
+  selectedMatchHomeId = homeId;
+  selectedMatchAwayId = awayId;
+  renderFixtureBrowser();
+}
+
+async function fetchFixtureMatch() {
+  if (!selectedMatchHomeId) return;
+  // Populate the hidden selects so fetchSelectedTeams() works unchanged
+  document.getElementById('sel-a').value = selectedMatchHomeId;
+  document.getElementById('sel-b').value = selectedMatchAwayId;
+  await fetchSelectedTeams();
+}
+
+// ── Init ──
+loadSkillDB();
+loadLeague();
+loadKeywords();
+</script>
+</body>
+</html>
